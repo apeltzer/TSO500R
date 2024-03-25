@@ -157,7 +157,7 @@ ${tso500_data}"
   
   # transform tso500 data
   tso500_data <- data %>%
-    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,Pair_ID)) %>%
+    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,Pat_ID)) %>%
     mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) %>%
     mutate(Pair_ID = Sample_ID) %>%
     add_column(Sample_Feature = "") %>%
