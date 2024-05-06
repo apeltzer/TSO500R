@@ -431,3 +431,77 @@ trim_qmo_header_and_footer <- function(string){
     stringr::str_remove_all("[\\t]{2,}") %>%
     stringr::str_remove("[\\n\\t]+$")
 }
+
+#' Visualize TSO500 QC results as gt-Table
+#'
+#' @param qc_df data frame generated with read_xxx_qc_metrics from tso500R package
+#' @param id_col column containing the flowcell/run_id name when multiple qc data frames were merged.
+#' @param group_name subheader for the subtable containing the actual QC metrics
+#'
+#' @importFrom dplyr select distinct rename bind_rows mutate replace_na case_when
+#' @importFrom tidyr pivot_wider
+#' @export
+make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
+    # lower QC limit for each metric.
+    lsl <- qc_df |>
+        filter((!!sym(id_col)) == "lsl_guideline") |>
+        mutate(n_failed = NA) |>
+        distinct()
+    stopifnot(nrow(lsl) == 1)
+
+    # upper QC limit for each metric
+    usl <- qc_df |>
+        filter((!!sym(id_col)) == "usl_guideline") |>
+        mutate(n_failed = 0) |>
+        distinct()
+    stopifnot(nrow(usl) == 1)
+
+    # QC metrics for each sample
+    run_metrics_df <- qc_df |>
+        filter(!(!!sym(id_col)) %in% c("lsl_guideline", "usl_guideline"))
+
+    # simple vector with all metrics
+    metrics <- colnames(select(run_metrics_df, -!!id_col))
+
+    # Count the numbers of QC failures
+    qc_failure_count <- rep(0, nrow(run_metrics_df))
+    names(qc_failure_count) <- run_metrics_df[[id_col]]
+    for (metric in metrics) {
+        qc_failure_count <- qc_failure_count +
+            replace_na(run_metrics_df[[metric]] < lsl[[metric]], 0) +
+            replace_na(run_metrics_df[[metric]] > usl[[metric]], 0)
+    }
+
+    # Merge tables into one for GT
+    merged_table <- bind_rows(
+        lsl |> mutate(group = "thresholds"),
+        usl |> mutate(group = "thresholds"),
+        run_metrics_df |> mutate(group = group_name, n_failed = qc_failure_count)
+    )
+
+    table_out <- merged_table |>
+        gt::gt(rowname_col = id_col, groupname_col = "group")
+
+    # Conditional formatting
+    for (metric in c(metrics, "n_failed")) {
+        table_out <- table_out |>
+            gt::data_color(
+                columns = metric,
+                rows = group == group_name,
+                fn = \(x) case_when(
+                    x < lsl[[metric]] ~ dTMCP::COLORS["LightBlue"],
+                    x > usl[[metric]] ~ dTMCP::COLORS["LightRed"],
+                    .default = "white"
+                )
+            )
+    }
+
+    # separate the "n_failed" column visually
+    table_out <- table_out |>
+        gt::tab_style(
+            style = gt::cell_borders(sides = "left", weight = "2px", color = "lightgrey"),
+            locations = gt::cells_body(columns = "n_failed")
+        )
+
+    table_out
+}
