@@ -23,6 +23,7 @@ read_tmb_trace_data <- function(tmb_directory){
   tmb_files <- list.files(
     path = tmb_directory,
     pattern = "*TMB_Trace.tsv",
+    recursive = TRUE,
     full.names = TRUE
   )
   

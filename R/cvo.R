@@ -74,6 +74,7 @@ read_cvo_data <- function(cvo_directory, local_app=FALSE){
   cvo_files <- list.files(
     path = cvo_directory,
     pattern = "*CombinedVariantOutput.tsv",
+    recursive = TRUE,
     full.names = TRUE
   )
   cvo_data <- map(cvo_files, cvo, local_app)
