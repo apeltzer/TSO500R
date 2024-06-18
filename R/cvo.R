@@ -167,11 +167,21 @@ get_small_variants.combined.variant.output <- function(cvo_obj){
 #' @export
 get_gene_amplifications.combined.variant.output <- function(cvo_obj){
   suppressWarnings(
-    if(all(is.na(cvo_obj$gene_amplifications))){
+    if(all(is.na(cvo_obj$gene_amplifications)) & all(is.na(cvo_obj$copy_number_variants))){
       gene_amplification_df <- data.frame()
     } else {
-      gene_amplification_df <- cvo_obj$gene_amplifications %>%
-        dplyr::mutate(sample_id = cvo_obj$analysis_details$pair_id) %>%
+      
+      if(is.null(cvo_obj$gene_amplifications)) {
+        gene_amplification_df <- cvo_obj$copy_number_variants
+      }
+      else {
+        gene_amplification_df <- cvo_obj$gene_amplifications
+      }
+
+      gene_amplification_df <- gene_amplification_df %>%
+        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
+                                         cvo_obj$analysis_details$dna_sample_id, 
+                                         cvo_obj$analysis_details$pair_id)) %>%
         dplyr::select(sample_id, tidyr::everything())
   }
   )
@@ -191,7 +201,9 @@ get_splice_variants.combined.variant.output <- function(cvo_obj){
       splice_variant_df <- data.frame()
     } else {
       splice_variant_df <- cvo_obj$splice_variants %>%
-        dplyr::mutate(sample_id = cvo_obj$analysis_details$pair_id) %>%
+        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
+                                         cvo_obj$analysis_details$dna_sample_id, 
+                                         cvo_obj$analysis_details$pair_id)) %>%
         dplyr::select(sample_id, tidyr::everything())
   }
   )
@@ -207,13 +219,23 @@ get_splice_variants.combined.variant.output <- function(cvo_obj){
 #' @export
 get_fusions.combined.variant.output <- function(cvo_obj){
   suppressWarnings(
-    if(all(is.na(cvo_obj$fusions))){
+    if(all(is.na(cvo_obj$fusions)) & all(is.na(cvo_obj$dna_fusions))){
       fusion_df <- data.frame()
     } else {
-      fusion_df <- cvo_obj$fusions %>%
-        dplyr::mutate(sample_id = cvo_obj$analysis_details$pair_id) %>%
+      
+      if(is.null(cvo_obj$fusions)) {
+        fusion_df <- cvo_obj$dna_fusions
+      }
+      else {
+        fusion_df <- cvo_obj$fusions
+      }
+
+      fusion_df <- fusion_df %>%
+        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
+                                         cvo_obj$analysis_details$dna_sample_id, 
+                                         cvo_obj$analysis_details$pair_id)) %>%
         dplyr::select(sample_id, tidyr::everything())
-  }
+    }
   )
   return(fusion_df)
 }
