@@ -445,8 +445,8 @@ trim_qmo_header_and_footer <- function(string){
 #' @param id_col column containing the flowcell/run_id name when multiple qc data frames were merged.
 #' @param group_name subheader for the subtable containing the actual QC metrics
 #'
-#' @importFrom dplyr select distinct rename bind_rows mutate replace_na case_when
-#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr select distinct rename bind_rows mutate case_when
+#' @importFrom tidyr pivot_wider replace_na
 #' @export
 make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
     # lower QC limit for each metric.
