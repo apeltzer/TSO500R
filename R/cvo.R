@@ -8,8 +8,8 @@
 #' @return A combined.variant.output object
 #' @export
 #'
-cvo <- function(cvo_file_path, local_app=FALSE){
-  new_combined_variant_output(cvo_file_path, local_app)
+cvo <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE){
+  new_combined_variant_output(cvo_file_path, local_app, ctdna)
 }
 
 #' Constructor function for combined.variant.output objects
@@ -19,11 +19,11 @@ cvo <- function(cvo_file_path, local_app=FALSE){
 #' @param local_app specifies whether quality metrics are coming from local app
 #'
 #' @return A combined.variant.output object
-new_combined_variant_output <- function(cvo_file_path, local_app=FALSE) {
+new_combined_variant_output <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE) {
 
   ANALYSIS_DETAILS_STRING <- 'Analysis Details'
-  GENE_AMP_STRING <- 'Gene Amplifications'
-  PERCENT_MSI_STRING <- 'Percent Unstable MSI Sites'
+  GENE_AMP_STRING <- 'Gene Amplifications|Copy Number Variants'
+  PERCENT_MSI_STRING <- 'Percent Unstable MSI Sites|SUM_JSD'
 
   cvo_file <- readr::read_file(cvo_file_path)
   split_cvo_string <- stringr::str_split(string = cvo_file, pattern = "\\[") %>% unlist()
@@ -31,7 +31,7 @@ new_combined_variant_output <- function(cvo_file_path, local_app=FALSE) {
   # parse analysis details, sequencing run details, TMB, and MSI part of provided CombinedVariantOutput file
   start_info <- which(grepl(ANALYSIS_DETAILS_STRING,split_cvo_string))
   end_info <- which(grepl(PERCENT_MSI_STRING, split_cvo_string))
-
+  
   # handle the parts of the file that are structured as key-value pairs
   # i.e. metadata and TMB/MSI sections
   records <- purrr::map(split_cvo_string[start_info:end_info], parse_cvo_record)
@@ -39,17 +39,22 @@ new_combined_variant_output <- function(cvo_file_path, local_app=FALSE) {
 
   # handle the parts of the file that are structured as tabular data
   # i.e. gene amplifications, splice variants, fusions, and small variants
-  start_data <- pmatch(GENE_AMP_STRING,split_cvo_string)
+  start_data <- na.omit(pmatch(c("Gene Amplifications", "Copy Number Variants"), split_cvo_string))
   end_data <- length(split_cvo_string)
-
+  
   tables <- purrr::map(split_cvo_string[start_data:end_data], parse_cvo_table)
-
+  
   # the number of tables is different between local app and DRAGEN analysis pipeline
   if (local_app) {
     names(tables) <- c("gene_amplifications", "splice_variants", "fusions", "small_variants")
   }
   else {
+    if (ctdna) {
+      names(tables) <- c("copy_number_variants", "dna_fusions", "small_variants")
+    }
+    else {
     names(tables) <- c("gene_amplifications", "splice_variants", "fusions", "exon_level_cnvs", "small_variants")
+    }
   }
 
   return(structure(c(records, tables), class = "combined.variant.output"))
@@ -70,15 +75,16 @@ validate_tso500 <- function() {}
 #' @return A named list of combined.variant.output objects
 #'
 #' @export
-read_cvo_data <- function(cvo_directory, local_app=FALSE){
+read_cvo_data <- function(cvo_directory, local_app=FALSE, ctdna=FALSE){
   cvo_files <- list.files(
     path = cvo_directory,
     pattern = "*CombinedVariantOutput.tsv",
     recursive = TRUE,
     full.names = TRUE
   )
-  cvo_data <- map(cvo_files, cvo, local_app)
-  names(cvo_data) <- map(cvo_data, ~ .x$analysis_details$pair_id)
+  cvo_data <- map(cvo_files, cvo, local_app, ctdna)
+  names(cvo_data) <- map(cvo_data, ~ ifelse(ctdna, .x$analysis_details$dna_sample_id, 
+                                            .x$analysis_details$pair_id))
   cvo_data
 }
 
@@ -143,7 +149,9 @@ get_small_variants.combined.variant.output <- function(cvo_obj){
       small_variant_df <- data.frame()
     } else {
       small_variant_df <- cvo_obj$small_variants %>%
-        dplyr::mutate(sample_id = cvo_obj$analysis_details$pair_id) %>%
+        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
+                                         cvo_obj$analysis_details$dna_sample_id, 
+                                         cvo_obj$analysis_details$pair_id)) %>%
         dplyr::select(sample_id, tidyr::everything())
   }
   )
@@ -265,7 +273,14 @@ parse_cvo_table <- function(table_string){
 #' @return data.frame
 handle_empty_cvo_table_values <- function(intermediate_tbl){
   if(stringr::str_detect(string = intermediate_tbl, pattern = "\\nNA$")){
-    return(NA)
+    cleaned_string <- str_replace(intermediate_tbl, "\\nNA", "")
+    if(str_length(cleaned_string) > 0) {
+      df <- utils::read.table(text = cleaned_string, sep = "\t", header = TRUE, fill = TRUE)
+      return(df)
+    }
+    else {
+      return(NA)
+    }
   } else {
     to_clean <- utils::read.table(text = intermediate_tbl, sep = "\t", header = TRUE, fill = TRUE)
     clean_name_df <- janitor::clean_names(to_clean)

@@ -22,7 +22,7 @@ tmb <- function(tmb_file_path){
 read_tmb_trace_data <- function(tmb_directory){
   tmb_files <- list.files(
     path = tmb_directory,
-    pattern = "*TMB_Trace.tsv",
+    pattern = "*TMB_Trace.tsv|tmb.trace.tsv",
     recursive = TRUE,
     full.names = TRUE
   )
@@ -30,7 +30,7 @@ read_tmb_trace_data <- function(tmb_directory){
   tmb_data = tibble(file = tmb_files) %>%
     mutate(data = lapply(file, read_tsv)) %>%
     unnest(data) %>%
-    mutate(sample_id = str_replace(basename(file), "_TMB_Trace.tsv", "")) %>%
+    mutate(sample_id = str_replace(basename(file), "_TMB_Trace.tsv|.tmb.trace.tsv", "")) %>%
     select(-file) %>%
     relocate(sample_id)
 
