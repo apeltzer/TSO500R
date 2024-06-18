@@ -8,8 +8,8 @@
 #' @return A quality.metrics.output object
 #' 
 #' @export
-qualitymetrics <- function(metrics_file_path, local_app=FALSE){
-  new_combined_quality_metrics_output(metrics_file_path, local_app)
+qualitymetrics <- function(metrics_file_path, local_app=FALSE, ctdna=FALSE){
+  new_combined_quality_metrics_output(metrics_file_path, local_app, ctdna)
 }
 
 #' Constructor function for quality.metrics.output objects
@@ -19,26 +19,33 @@ qualitymetrics <- function(metrics_file_path, local_app=FALSE){
 #' @param local_app specifies whether quality metrics are coming from local app
 #'
 #' @return A quality.metrics.output object
-new_combined_quality_metrics_output <- function(metrics_file_path, local_app=FALSE) {
+new_combined_quality_metrics_output <- function(metrics_file_path, local_app=FALSE, ctdna=FALSE) {
 
   qm_file <- readr::read_file(metrics_file_path)
   split_qmo_string <- stringr::str_split(string = qm_file, pattern = "\\[") %>% unlist()
+  
+  notes_section_index <- ifelse(ctdna, 10, 12)
 
   # handle the parts of the file that are structured as key-value pairs
   # i.e. header and notes sections
-  records <- purrr::map(split_qmo_string[c(2,12)], parse_qmo_record)
+  records <- purrr::map(split_qmo_string[c(2,notes_section_index)], parse_qmo_record)
   names(records) <- c("header", "notes")
 
   # handle the parts of the file that are structured as tabular data
   # i.e. run qc metrics, analysis status etc. 
-  tables <- purrr::map(split_qmo_string[3:11], parse_qmo_table)
+  tables <- purrr::map(split_qmo_string[3:(notes_section_index-1)], parse_qmo_table)
 
   # the order of tables is different between local app and DRAGEN analysis pipeline
   if (local_app) {
     names(tables) <- c("run_qc_metrics", "analysis_status", "dna_qc_metrics", "dna_qc_metrics_snvtmb", "dna_qc_metrics_msi", "dna_qc_metrics_cnv", "dna_expanded_metrics", "rna_qc_metrics", "rna_expanded_metrics")
   }
   else {
-    names(tables) <- c("run_qc_metrics", "analysis_status", "dna_qc_metrics", "dna_qc_metrics_snvtmb", "dna_qc_metrics_msi", "dna_qc_metrics_cnv", "rna_qc_metrics", "dna_expanded_metrics", "rna_expanded_metrics")
+    if (ctdna) {
+      names(tables) <- c("run_qc_metrics", "analysis_status", "dna_qc_metrics", "dna_qc_metrics_snvtmb", "dna_qc_metrics_msi", "dna_qc_metrics_cnv", "dna_expanded_metrics")
+    }
+    else {
+      names(tables) <- c("run_qc_metrics", "analysis_status", "dna_qc_metrics", "dna_qc_metrics_snvtmb", "dna_qc_metrics_msi", "dna_qc_metrics_cnv", "rna_qc_metrics", "dna_expanded_metrics", "rna_expanded_metrics")
+    }
   }
 
   return(structure(c(records, tables), class = "combined.quality.metrics.output"))
@@ -59,16 +66,15 @@ validate_tso500_qc <- function() {}
 #'
 #' @return A named list of combined.quality.metrics.output objects
 #' @export
-read_qmo_data <- function(qmo_directory, local_app=FALSE){
+read_qmo_data <- function(qmo_directory, local_app=FALSE, ctdna=FALSE){
   qmo_files <- list.files(
     path = qmo_directory,
     pattern = "*MetricsOutput.tsv",
     full.names = TRUE
   )
   
-  qmo_data <- map(qmo_files, qualitymetrics, local_app) %>%
+  qmo_data <- map(qmo_files, qualitymetrics, local_app, ctdna) %>%
     set_names(str_remove(basename(qmo_files), "\\.tsv$")) 
-  #names(qmo_data) <- map(qmo_data, ~ .x$header$output_time)
 
   qmo_data
 }
@@ -389,9 +395,10 @@ parse_qmo_record <- function(record_string){
 #'
 #' @return data.frame
 parse_qmo_table <- function(table_string){
-
+  
   intermediate <- table_string %>% 
     trim_qmo_header_and_footer()
+  
   header_line <- stringr::str_extract(intermediate, ".+\n")
 
   if(stringr::str_detect(header_line, "\\t\\n")){
