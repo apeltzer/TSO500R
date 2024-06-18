@@ -4,7 +4,7 @@
 \alias{read_cvo_data}
 \title{Read in a batch of CombinedVariantOutput.tsv files into a list}
 \usage{
-read_cvo_data(cvo_directory, local_app = FALSE)
+read_cvo_data(cvo_directory, local_app = FALSE, ctdna = FALSE)
 }
 \arguments{
 \item{cvo_directory}{a file path to a directory containing one of more CombinedVariantOutput.tsv files}

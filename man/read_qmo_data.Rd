@@ -4,7 +4,7 @@
 \alias{read_qmo_data}
 \title{Read in a batch of MetricsOutput.tsv files into a list}
 \usage{
-read_qmo_data(qmo_directory, local_app = FALSE)
+read_qmo_data(qmo_directory, local_app = FALSE, ctdna = FALSE)
 }
 \arguments{
 \item{qmo_directory}{a file path to a directory containing one of more
