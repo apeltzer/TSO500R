@@ -22,7 +22,7 @@ cvo <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE){
 new_combined_variant_output <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE) {
 
   ANALYSIS_DETAILS_STRING <- 'Analysis Details'
-  GENE_AMP_STRING <- 'Gene Amplifications|Copy Number Variants'
+  GENE_AMP_STRING <- c('Gene Amplifications', 'Copy Number Variants')
   PERCENT_MSI_STRING <- 'Percent Unstable MSI Sites|SUM_JSD'
 
   cvo_file <- readr::read_file(cvo_file_path)
@@ -39,7 +39,7 @@ new_combined_variant_output <- function(cvo_file_path, local_app=FALSE, ctdna=FA
 
   # handle the parts of the file that are structured as tabular data
   # i.e. gene amplifications, splice variants, fusions, and small variants
-  start_data <- na.omit(pmatch(c("Gene Amplifications", "Copy Number Variants"), split_cvo_string))
+  start_data <- na.omit(pmatch(GENE_AMP_STRING, split_cvo_string))
   end_data <- length(split_cvo_string)
   
   tables <- purrr::map(split_cvo_string[start_data:end_data], parse_cvo_table)
