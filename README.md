@@ -11,7 +11,7 @@ install.packages("/path/to/TSO500R", repos = NULL)
 
 ## Overview
 
-*TSO500R(eader)* is an R package developed for Illumina TSO500 data. It can be used for importing and processing of files produced by the Illumina [TSO500 DRAGEN analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_v2.1/Content/SW/FrontPages/DRAGENTSO500_v2.1.htm) and the [LocalApp](https://emea.support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/trusight/trusight-oncology-500/trusight-oncology-500-local-app-v2.2-user-guide-1000000137777-01.pdf).
+*TSO500R(eader)* is an R package developed for Illumina TSO500 data. It can be used for importing and processing of files produced by the Illumina [TSO500 DRAGEN analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_v2.1/Content/SW/FrontPages/DRAGENTSO500_v2.1.htm), [TSO500 DRAGEN ctDNA analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_ctDNA_v2.1/Content/SW/FrontPages/DRAGENTSO500_ctDNA_v2.1.htm) and the [LocalApp](https://emea.support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/trusight/trusight-oncology-500/trusight-oncology-500-local-app-v2.2-user-guide-1000000137777-01.pdf).
 
 The package provides different functions for parsing the various output files produced by the Illumina pipelines. This includes the quality control files as well as the analysis outputs. Besides, it offers functionality to integrate the different result types, e.g. small variants and amplifications.
 
@@ -52,6 +52,14 @@ In case you want to read in data that resulted from a `LocalApp` run, you need t
 # load the MetricsOutput.tsv file of a LocalApp run in a specific folder
 tso500_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
 qmo_data <- read_qmo_data(test_path, local_app=TRUE)
+```
+
+In case you want to read in data that resulted from a `ctDNA analysis` run, you need to set `ctdna=TRUE` due to the (slight) differences between the file formats:
+
+```r
+# load the MetricsOutput.tsv file of a LocalApp run in a specific folder
+tso500_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
+qmo_data <- read_qmo_data(test_path, ctdna=TRUE)
 ```
 
 This will produce a list of `combined.quality.metrics.output` objects, which can be further processed and contain all the information as given in the parsed files. Each section in the `CombinedVariantOutput` file can be accessed with standard list indexing. The `combined.quality.metrics.output` object in the last can be accessed via the corresponding file name (without extension). This will therfore probably be `MetricsOutput` in case you read in a metrics file of all samples of a run and will include sample identifiers (`sample1_MetricsOutput`) if you want to read in individual metrics file.
@@ -98,6 +106,14 @@ In case you want to read in data that resulted from a `LocalApp` run, you need t
 # load all CombinedVariantOutput.tsv files in a specific folder
 cvo_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
 cvo_data <- read_cvo_data(tso500_data_dir, local_app=TRUE)
+```
+
+In case you want to read in data that resulted from a `ctdna` pipeline run, you need to set `ctdna=TRUE` due to the (slight) differences between the file formats:
+
+```r
+# load all CombinedVariantOutput.tsv files in a specific folder
+cvo_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
+cvo_data <- read_cvo_data(tso500_data_dir, ctdna=TRUE)
 ```
 
 This will produce a list of `combined.variant.output` objects, which can be further processed and contain all the information as given in the parsed files. Each section in the `CombinedVariantOutput` file can be accessed with standard list indexing. The individual `combined.variant.output` objects in the list can be accessed via the `PairID` as given in the `CombinedVariantOutput.tsv` file.

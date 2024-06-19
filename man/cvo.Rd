@@ -4,7 +4,7 @@
 \alias{cvo}
 \title{Read in a CombinedVariantOutput.tsv file and store as an object}
 \usage{
-cvo(cvo_file_path, local_app = FALSE)
+cvo(cvo_file_path, local_app = FALSE, ctdna = FALSE)
 }
 \arguments{
 \item{cvo_file_path}{a file path to a CombinedVariantOutput.tsv file}

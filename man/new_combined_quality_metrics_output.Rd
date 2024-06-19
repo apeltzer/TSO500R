@@ -5,7 +5,11 @@
 \title{Constructor function for quality.metrics.output objects
 Not to be called directly}
 \usage{
-new_combined_quality_metrics_output(metrics_file_path, local_app = FALSE)
+new_combined_quality_metrics_output(
+  metrics_file_path,
+  local_app = FALSE,
+  ctdna = FALSE
+)
 }
 \arguments{
 \item{metrics_file_path}{a file path to a MetricsOutput.tsv file}

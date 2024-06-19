@@ -506,8 +506,11 @@ extract_metrics <- function(cvo_data, category = "tmb"){
 get_metrics_df <- function(cvo_data){
   tmb_df <- extract_metrics(cvo_data, category = "tmb")
   msi_df <- extract_metrics(cvo_data, category = "msi")
+  
   metrics_df <- dplyr::bind_cols(tmb_df, msi_df) %>%
-    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ .x$analysis_details$pair_id)) %>%
+    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
+                                                      .x$analysis_details$dna_sample_id, 
+                                                      .x$analysis_details$pair_id))) %>%
     dplyr::select(sample_id, tidyr::everything())
   return(metrics_df)
 }
@@ -523,7 +526,9 @@ get_metrics_df <- function(cvo_data){
 get_analysis_details_df <- function(cvo_data){
   analysis_details <- extract_metrics(cvo_data, category = "analysis_details")
   analysis_details_df <- analysis_details %>%
-    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ .x$analysis_details$pair_id)) %>%
+    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
+                                                                .x$analysis_details$dna_sample_id, 
+                                                                .x$analysis_details$pair_id))) %>%
     dplyr::select(sample_id, tidyr::everything())
   return(analysis_details_df)
 }
@@ -539,7 +544,9 @@ get_analysis_details_df <- function(cvo_data){
 get_sequencing_run_details_df <- function(cvo_data){
   sequencing_run_details <- extract_metrics(cvo_data, category = "sequencing_run_details")
   sequencing_run_details_df <- sequencing_run_details %>%
-    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ .x$analysis_details$pair_id)) %>%
+    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
+                                                                .x$analysis_details$dna_sample_id, 
+                                                                .x$analysis_details$pair_id))) %>%
     dplyr::select(sample_id, tidyr::everything())
   return(sequencing_run_details_df)
 }
@@ -577,7 +584,9 @@ get_count_df <- function(cvo_data){
   # most of the following steps are taken to make sure that we get numbers for all samples and 
   # variant types
   default_df <- extract_metrics(cvo_data, category = "sequencing_run_details") %>%
-    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ .x$analysis_details$pair_id)) %>%
+    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
+                                                                .x$analysis_details$dna_sample_id, 
+                                                                .x$analysis_details$pair_id))) %>%
     dplyr::select(sample_id) %>%
     tibble::add_column(number_of_amplifications = NA) %>%
     tibble::add_column(number_of_small_variants = NA) %>%
