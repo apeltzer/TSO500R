@@ -13,6 +13,7 @@ generate_dragen_samplesheet(
   adapter_read1,
   adapter_read2,
   adapter_behavior = "trim",
+  patient_column = "Pat_ID",
   minimum_trimmed_read_length = 35,
   mask_short_reads = 35,
   outfile
