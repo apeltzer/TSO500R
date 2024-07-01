@@ -83,7 +83,7 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @return the dragen analysis input sample sheet
 #'
 #' @export
-generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
+generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", patient_column="Pat_ID", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
   # dragen sample sheet templates
   dragen_samplesheet_header = "[Header],,,,,,,
 FileFormatVersion,${file_format_version},,,,,,
@@ -129,6 +129,11 @@ ${tso500_data}"
   # parse header part of provided sample sheet
   start_header <- pmatch(HEADER_STRING, split_samplesheet_string) + 1
   end_header <- which(grepl(CHEMISTRY_STRING, split_samplesheet_string))
+  
+  test <- read.csv(text=split_samplesheet_string[start_header:end_header],header=FALSE) %>%
+    purrr::discard(~all(is.na(.)))
+  print(test)
+  
   header <- read.csv(text=split_samplesheet_string[start_header:end_header],header=FALSE) %>%
     purrr::discard(~all(is.na(.))) %>%
     pivot_wider(names_from=V1, values_from=V2)
@@ -157,7 +162,7 @@ ${tso500_data}"
   
   # transform tso500 data
   tso500_data <- data %>%
-    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,Pat_ID)) %>%
+    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,{{patient_column}})) %>%
     mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) %>%
     mutate(Pair_ID = Sample_ID) %>%
     add_column(Sample_Feature = "") %>%
