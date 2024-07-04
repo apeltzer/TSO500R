@@ -69,7 +69,7 @@ validate_tso500_qc <- function() {}
 read_qmo_data <- function(qmo_directory, local_app=FALSE, ctdna=FALSE){
   qmo_files <- list.files(
     path = qmo_directory,
-    pattern = "*MetricsOutput.tsv",
+    pattern = "*MetricsOutput\\.tsv$",
     full.names = TRUE
   )
   

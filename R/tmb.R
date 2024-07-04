@@ -22,7 +22,7 @@ tmb <- function(tmb_file_path){
 read_tmb_trace_data <- function(tmb_directory){
   tmb_files <- list.files(
     path = tmb_directory,
-    pattern = "*TMB_Trace.tsv|tmb.trace.tsv",
+    pattern = "*TMB_Trace\\.tsv$|tmb.trace\\.tsv$",
     recursive = TRUE,
     full.names = TRUE
   )
