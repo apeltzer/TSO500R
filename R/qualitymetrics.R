@@ -516,16 +516,16 @@ make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
             case_when(
               metric == p_value_field ~ "white",
               (p_value_available & metric == contamination_field & (x > usl[[metric]] & 
-                                                                      run_metrics_df[[p_value_field]] <= usl[[p_value_field]])) ~ dTMCP::COLORS["LightRed"],
-              (metric != contamination_field & x < lsl[[metric]]) ~ dTMCP::COLORS["LightBlue"],
-              (metric != contamination_field & x > usl[[metric]]) ~ dTMCP::COLORS["LightRed"],
+                                                                      run_metrics_df[[p_value_field]] <= usl[[p_value_field]])) ~ "#F5CDB9",
+              (metric != contamination_field & x < lsl[[metric]]) ~ "#D2F2F7",
+              (metric != contamination_field & x > usl[[metric]]) ~ "#F5CDB9",
               .default = "white"
             )
           }
           else {
             case_when(
-              x < lsl[[metric]] ~ dTMCP::COLORS["LightBlue"],
-              x > usl[[metric]] ~ dTMCP::COLORS["LightRed"],
+              x < lsl[[metric]] ~ "#D2F2F7",
+              x > usl[[metric]] ~ "#F5CDB9",
               .default = "white"
             )
           }
