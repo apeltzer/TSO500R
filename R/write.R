@@ -85,20 +85,20 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @export
 generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
   # dragen sample sheet templates
-  dragen_samplesheet_header = "[Header],,,,,,,
+  dragen_samplesheet_header <- "[Header],,,,,,,
 FileFormatVersion,${file_format_version},,,,,,
 RunName,${run_name},,,,,,
 InstrumentType,${instrument_type},,,,,,
 ,,,,,,,"
   
-  dragen_samplesheet_reads = "[Reads],,,,,,,
+  dragen_samplesheet_reads <- "[Reads],,,,,,,
 Read1Cycles,101,,,,,,
 Read2Cycles,101,,,,,,
 Index1Cycles,10,,,,,,
 Index2Cycles,10,,,,,,
 ,,,,,,,"
   
-  dragen_samplesheet_bclconvert = "[BCLConvert_Settings],,,,,,,
+  dragen_samplesheet_bclconvert <- "[BCLConvert_Settings],,,,,,,
 SoftwareVersion,${software_version},,,,,,
 AdapterRead1,${adapter_read1},,,,,,
 AdapterRead2,${adapter_read2},,,,,,
@@ -107,62 +107,37 @@ MinimumTrimmedReadLength,${minimum_trimmed_read_length},,,,,,
 MaskShortReads,${mask_short_reads},,,,,,
 ,,,,,,,"
   
-  dragen_samplesheet_bclconvert_data = "[BCLConvert_Data],,,,,,,
+  dragen_samplesheet_bclconvert_data <- "[BCLConvert_Data],,,,,,,
 ${bclconvert_data}
 ,,,,,,,
 [TSO500S_Settings],,,,,,,
 ,,,,,,,"
   
-  dragen_samplesheet_tso500_data = "[TSO500S_Data],,,,,,,
+  dragen_samplesheet_tso500_data <- "[TSO500S_Data],,,,,,,
 ${tso500_data}"
 
-  HEADER_STRING <- '[Header]'
-  CHEMISTRY_STRING <- 'Chemistry'
-  SETTINGS_STRING <- '[Settings]'
-  OVERRIDE_CYCLES_STRING <- 'OverrideCycles'
-  DATA_STRING <- '[Data]'
-  
-  # Read text file into string
-  samplesheet_file <- readr::read_file(samplesheet)
-  split_samplesheet_string <- stringr::str_split(string = samplesheet_file, pattern = "\r\n") %>% unlist()
-  
-  # parse header part of provided sample sheet
-  start_header <- pmatch(HEADER_STRING, split_samplesheet_string) + 1
-  end_header <- which(grepl(CHEMISTRY_STRING, split_samplesheet_string))
-  header <- read.csv(text=split_samplesheet_string[start_header:end_header],header=FALSE) %>%
-    purrr::discard(~all(is.na(.))) %>%
-    pivot_wider(names_from=V1, values_from=V2)
-  
-  # parse settings part of provided sample sheet
-  start_settings <- pmatch(SETTINGS_STRING, split_samplesheet_string) + 1
-  end_settings <- which(grepl(OVERRIDE_CYCLES_STRING, split_samplesheet_string))
-  settings <- read.csv(text=split_samplesheet_string[start_settings:end_settings],header=FALSE) %>%
-    purrr::discard(~all(is.na(.))) %>%
-    pivot_wider(names_from=V1, values_from=V2)
-  
-  # prase data part of provided sample sheet
-  start_data <- pmatch(DATA_STRING, split_samplesheet_string) + 1
-  data <- read.csv(text=split_samplesheet_string[start_data:length(split_samplesheet_string)])
+  # parse provided sample sheet 
+  samplesheet_data <- parse_illumina_samplesheet(samplesheet)
   
   # transform bclconvert data
-  bclconvert_data <- data %>%
-    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) %>%
-    select(c(Sample_ID,index,index2)) %>%
-    add_column(col_name1 = "",
+  bclconvert_data <- samplesheet_data$data |>
+    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) |>
+    select(c(Sample_ID,index,index2)) |>
+    tibble::add_column(col_name1 = "",
                col_name2 = "",
                col_name3 = "",
                col_name4 = "",
-               col_name5 = "") %>%
+               col_name5 = "") |>
     format_csv()
   
   # transform tso500 data
-  tso500_data <- data %>%
-    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,Pat_ID)) %>%
-    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) %>%
-    mutate(Pair_ID = Sample_ID) %>%
-    add_column(Sample_Feature = "") %>%
-    add_column(Sample_Description = "") %>%
-    replace(is.na(.), "") %>%
+  tso500_data <- samplesheet_data$data |>
+    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,Pair_ID)) |>
+    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) |>
+    mutate(Pair_ID = Sample_ID) |>
+    tibble::add_column(Sample_Feature = "") |>
+    tibble::add_column(Sample_Description = "") |>
+    mutate_all(~replace(., is.na(.), "")) |>
     format_csv()
   
   # replace values accordingly in template strings
@@ -174,7 +149,7 @@ ${tso500_data}"
   
   # content for the bcl convert data section
   bclconvert_data_string <- stringr::str_interp(dragen_samplesheet_bclconvert_data, list(bclconvert_data=str_sub(bclconvert_data, end = -2)))
-  bclconvert_data_string <- str_replace_all(bclconvert_data_string, "col_name\\w+", "")
+  bclconvert_data_string <- stringr::str_replace_all(bclconvert_data_string, "col_name\\w+", "")
   
   # content for the TSO500 data section
   tso500_data_string <- stringr::str_interp(dragen_samplesheet_tso500_data, list(tso500_data=str_sub(tso500_data, end = -2)))

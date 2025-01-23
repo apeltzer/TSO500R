@@ -642,3 +642,46 @@ prepare_dataframe_for_oncoprint <- function(variant_data_frame, id_column="sampl
 
     return(oncoprint_matrix)
 }
+
+#' Parses DRAGEN sample sheet and returns a dataframe
+#'
+#' @param samplesheet path to Illumina sample sheet
+#' @param id_column Column holding identifiers
+#' @param gene_column Column holding genes
+#' @param variant_type_column Column holding variant types
+#'
+#' @return names list of data frames (header, settings, data) holding sample sheet content
+#' 
+#' @export
+parse_illumina_samplesheet <- function(samplesheet){
+  # illumina sample sheet sections
+  HEADER_STRING <- '[Header]'
+  CHEMISTRY_STRING <- 'Chemistry'
+  SETTINGS_STRING <- '[Settings]'
+  OVERRIDE_CYCLES_STRING <- 'OverrideCycles'
+  DATA_STRING <- '[Data]'
+  
+  # Read text file into string
+  samplesheet_file <- readr::read_file(samplesheet)
+  split_samplesheet_string <- stringr::str_split(string = samplesheet_file, pattern = "\r\n") |> unlist()
+  
+  # parse header part of provided sample sheet
+  start_header <- pmatch(HEADER_STRING, split_samplesheet_string) + 1
+  end_header <- which(grepl(CHEMISTRY_STRING, split_samplesheet_string))
+  header <- readr::read_csv(I(split_samplesheet_string[start_header:end_header]), col_names = FALSE) |>
+    purrr::discard(~all(is.na(.))) |>
+    pivot_wider(names_from=X1, values_from=X2)
+  
+  # parse settings part of provided sample sheet
+  start_settings <- pmatch(SETTINGS_STRING, split_samplesheet_string) + 1
+  end_settings <- which(grepl(OVERRIDE_CYCLES_STRING, split_samplesheet_string))
+  settings <- readr::read_csv(I(split_samplesheet_string[start_settings:end_settings]), col_names = FALSE) |>
+    purrr::discard(~all(is.na(.))) |>
+    pivot_wider(names_from=X1, values_from=X2)
+  
+  # prase data part of provided sample sheet
+  start_data <- pmatch(DATA_STRING, split_samplesheet_string) + 1
+  data <- readr::read_csv(I(split_samplesheet_string[start_data:length(split_samplesheet_string)]))
+
+  return(list(header = header, settings = settings, data = data))
+}
