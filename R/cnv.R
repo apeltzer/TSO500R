@@ -41,7 +41,7 @@ new_cnv_output <- function(cnv_file_path, local_app=FALSE) {
 read_cnv_data <- function(cnv_directory, local_app=FALSE){
   cnv_files <- list.files(
     path = cnv_directory,
-    pattern = "*cnv.vcf|*CopyNumberVariants.vcf",
+    pattern = "*cnv\\.vcf$|*CopyNumberVariants\\.vcf$",
     recursive = TRUE,
     full.names = TRUE
   )
@@ -61,7 +61,7 @@ read_cnv_data <- function(cnv_directory, local_app=FALSE){
 summarize_cnv_data <- function(cnv_directory){
   cnv_files <- list.files(
     path = cnv_directory,
-    pattern = "*cnv.vcf|*CopyNumberVariants.vcf",
+    pattern = "*cnv\\.vcf$|*CopyNumberVariants\\.vcf$",
     recursive = TRUE,
     full.names = TRUE
   )
@@ -69,7 +69,7 @@ summarize_cnv_data <- function(cnv_directory){
   cnv_data = tibble(file = cnv_files) %>%
     mutate(data = lapply(file, parse_vcf_to_df)) %>%
     unnest(data) %>%
-    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants.vcf", "")) %>%
+    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants\\.vcf$", "")) %>%
     select(-file) %>%
     relocate(sample_id)
 

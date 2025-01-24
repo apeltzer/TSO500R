@@ -83,7 +83,7 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @return the dragen analysis input sample sheet
 #'
 #' @export
-generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
+generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", patient_column="Pat_ID", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
   # dragen sample sheet templates
   dragen_samplesheet_header <- "[Header],,,,,,,
 FileFormatVersion,${file_format_version},,,,,,
