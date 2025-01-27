@@ -68,7 +68,7 @@ In order to load the `MetricsOutput.tsv` file or multiple such output files of a
 ```r
 # load the MetricsOutput.tsv file in a specific folder
 tso500_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
-qmo_data <- read_qmo_data(test_path)
+qmo_data <- read_qmo_data(tso500_data_dir)
 ```
 
 In case you want to read in data that resulted from a `LocalApp` run, you need to set `local_app=TRUE` due to the (slight) differences between the file formats:
@@ -84,7 +84,7 @@ In case you want to read in data that resulted from a `ctDNA analysis` run, you 
 ```r
 # load the MetricsOutput.tsv file of a LocalApp run in a specific folder
 tso500_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
-qmo_data <- read_qmo_data(test_path, ctdna=TRUE)
+qmo_data <- read_qmo_data(tso500_data_dir, ctdna=TRUE)
 ```
 
 This will produce a list of `combined.quality.metrics.output` objects, which can be further processed and contain all the information as given in the parsed files. Each section in the `CombinedVariantOutput` file can be accessed with standard list indexing. The `combined.quality.metrics.output` object in the last can be accessed via the corresponding file name (without extension). This will therfore probably be `MetricsOutput` in case you read in a metrics file of all samples of a run and will include sample identifiers (`sample1_MetricsOutput`) if you want to read in individual metrics file.
@@ -122,7 +122,7 @@ To load all `CombinedVariantOutput.tsv` files of a DRAGEN analysis run in a spec
 ```r
 # load all CombinedVariantOutput.tsv files of a LocalApp run in a specific folder
 cvo_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
-cvo_data <- read_cvo_data(tso500_data_dir)
+cvo_data <- read_cvo_data(cvo_data_dir)
 ```
 
 In case you want to read in data that resulted from a `LocalApp` run, you need to set `local_app=TRUE` due to the (slight) differences between the file formats:
@@ -130,7 +130,7 @@ In case you want to read in data that resulted from a `LocalApp` run, you need t
 ```r
 # load all CombinedVariantOutput.tsv files in a specific folder
 cvo_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
-cvo_data <- read_cvo_data(tso500_data_dir, local_app=TRUE)
+cvo_data <- read_cvo_data(cvo_data_dir, local_app=TRUE)
 ```
 
 In case you want to read in data that resulted from a `ctdna` pipeline run, you need to set `ctdna=TRUE` due to the (slight) differences between the file formats:
@@ -138,7 +138,7 @@ In case you want to read in data that resulted from a `ctdna` pipeline run, you 
 ```r
 # load all CombinedVariantOutput.tsv files in a specific folder
 cvo_data_dir <- "/path/to/your/TSO500/analysis/output/data/"
-cvo_data <- read_cvo_data(tso500_data_dir, ctdna=TRUE)
+cvo_data <- read_cvo_data(cvo_data_dir, ctdna=TRUE)
 ```
 
 This will produce a list of `combined.variant.output` objects, which can be further processed and contain all the information as given in the parsed files. Each section in the `CombinedVariantOutput` file can be accessed with standard list indexing. The individual `combined.variant.output` objects in the list can be accessed via the `PairID` as given in the `CombinedVariantOutput.tsv` file.
@@ -329,7 +329,7 @@ If we need to extract the counts of the different variant types from a list of `
 
 ```r
 # get count data frame on variant type for list of `combined.variant.output` objects
-get_count_df <- function(cvo_data)
+df_count_data <- get_count_df(cvo_data)
 ```
 
 If you want to use your TSO500 data for generating an [OncoPrint](https://jokergoo.github.io/ComplexHeatmap-reference/book/oncoprint.html) plot, you can use the following function to prepare the data accordingly.
