@@ -6,8 +6,8 @@ Authors@R:
     c(person("Christopher", "Mohr", email = "christopher.mohr@boehringer-ingelheim.de", role = c("aut", "cre")),
       person("Alexander", "Peltzer", email = "alexander.peltzer@boehringer-ingelheim.com", role = c("ctb")),
       person("Sophie", "Paul", email = "sophie.paul@addenbrookes.nhs.uk", role = c("aut")))
-Description: TSO500R(eader) is an R package developed for handling Illumina TruSight Oncology 500 data. It can be used for importing and processing of files produced by the Illumina TSO500 DRAGEN analysis pipeline and the (deprecated) LocalApp provided by Illumina.
-  The package provides different functions for parsing the various output files produced by the Illumina pipelines. This includes  quality control files as well as the analysis outputs. Besides, it offers functionality to integrate the different result types, e.g. small variants and amplifications. 
+Description: TSO500R(eader) is an R package developed for handling Illumina TruSight Oncology 500 data. It can be used for importing and processing of files produced by the Illumina TSO500 DRAGEN analysis pipeline and the LocalApp provided by Illumina.
+  The package provides different functions for parsing the various output files produced by the Illumina pipelines. This includes quality control files as well as the analysis outputs. Besides, it offers functionality to integrate the different result types, e.g. small variants and amplifications. 
   Other features include functions for basic plotting and export functionality for writing `RData` objects or to generate DRAGEN analysis pipeline samplesheets.
 License: MIT
 Encoding: UTF-8

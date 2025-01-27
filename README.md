@@ -7,7 +7,7 @@
 
 ---
 
-*TSO500R(eader)* is an R package developed for handling Illumina [TruSight Oncology 500](https://emea.illumina.com/products/by-type/clinical-research-products/trusight-oncology-500.html) data. It can be used for importing and processing of files produced by the Illumina [TSO500 DRAGEN analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_v2.1/Content/SW/FrontPages/DRAGENTSO500_v2.1.htm), [TSO500 DRAGEN ctDNA analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_ctDNA_v2.1/Content/SW/FrontPages/DRAGENTSO500_ctDNA_v2.1.htm) and the [LocalApp](https://emea.support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/trusight/trusight-oncology-500/trusight-oncology-500-local-app-v2.2-user-guide-1000000137777-01.pdf).
+*TSO500R(eader)* is an R package developed for handling Illumina [TruSight Oncology 500](https://emea.illumina.com/products/by-type/clinical-research-products/trusight-oncology-500.html) data. It can be used for importing and processing of files produced by the Illumina [TSO500 DRAGEN analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_v2.1/Content/SW/FrontPages/DRAGENTSO500_v2.1.htm), [TSO500 DRAGEN ctDNA analysis pipeline](https://support-docs.illumina.com/SW/DRAGEN_TSO500_ctDNA_v2.1/Content/SW/FrontPages/DRAGENTSO500_ctDNA_v2.1.htm) and the [LocalApp](https://emea.support.illumina.com/content/dam/illumina-support/documents/documentation/software_documentation/trusight/trusight-oncology-500/1000000137777_02_tso-500-local-app-v2_2_1-user-guide.pdf).
 
 The package provides different functions for parsing the various output files produced by the Illumina pipelines. This includes quality control files as well as the analysis outputs. Besides, it offers functionality to integrate the different result types, e.g. small variants and amplifications.
 
@@ -217,11 +217,11 @@ We provide different functions to enrich the data frame containing small variant
 
 ```r 
 # add information given in Illumina TMB trace table to small variant data frame
-small_variants_with_tmb_info <- small_variant_df %>%
+small_variants_with_tmb_info <- small_variant_df |>
   add_tmb_variant_data(tmb_trace_data)
 
 # adds amplifications to small variant data frame
-small_variants_with_amps <- small_variant_df %>%
+small_variants_with_amps <- small_variant_df |>
   add_amplification_data(read_gene_amplifications(cvo_data))
 ```
 
@@ -252,7 +252,7 @@ The following variant consequences are included:
 
 ```r
 # filter small variant data frame as described above
-small_variants_with_filtered <- small_variant_df %>%
+small_variants_with_filtered <- small_variant_df |>
   process_small_variant_data()
 ```
 
@@ -276,7 +276,7 @@ You can also apply filters based on other properties such as the read depth of t
 
 ```r
 # keep all small variants that have a depth HIGHER than 100
-small_variants_with_filtered <- small_variant_df %>%
+small_variants_with_filtered <- small_variant_df |>
   filter_depth(100)
 ```
 
@@ -304,7 +304,7 @@ plot_af_per_variant_consequence(small_variant_df)
 You can also add commonly-used theme elements, if you prefer:
 
 ```r
-plot_af_per_variant_consequence(small_variant_df) %>%
+plot_af_per_variant_consequence(small_variant_df) |>
   add_common_theme_elements()
 ```
 
@@ -337,7 +337,7 @@ If you want to use your TSO500 data for generating an [OncoPrint](https://jokerg
 ```r
 # make sure that your small variant data frame does not have empty fields/ NAs in the needed columns
 # you do not have to use the same function as in this example
-small_variant_df_filtered <- read_small_variants(cvo_data) %>%
+small_variant_df_filtered <- read_small_variants(cvo_data) |>
   process_and_filter_small_variant_data()
 
 # run function on small variant data frame
