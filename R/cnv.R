@@ -52,7 +52,7 @@ read_cnv_data <- function(cnv_directory, local_app=FALSE){
 
 #' Read in a batch of *CopyNumberVariants.vcf files into one dataframe
 #'
-#' @param tmb_directory a file path to a directory containing one of more
+#' @param cnv_directory a file path to a directory containing one of more
 #' *tmb.json files
 #'
 #' @return A dataframe with the read CNV data
@@ -66,12 +66,12 @@ summarize_cnv_data <- function(cnv_directory){
     full.names = TRUE
   )
 
-  cnv_data = tibble(file = cnv_files) %>%
+  cnv_data = tibble::tibble(file = cnv_files) %>%
     mutate(data = lapply(file, parse_vcf_to_df)) %>%
-    unnest(data) %>%
+    tidyr::unnest(data) %>%
     mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants\\.vcf$", "")) %>%
     select(-file) %>%
-    relocate(sample_id)
+    dplyr::relocate(sample_id)
 
   cnv_data
 }

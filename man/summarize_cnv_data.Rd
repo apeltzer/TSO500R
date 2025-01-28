@@ -7,7 +7,7 @@
 summarize_cnv_data(cnv_directory)
 }
 \arguments{
-\item{tmb_directory}{a file path to a directory containing one of more
+\item{cnv_directory}{a file path to a directory containing one of more
 *tmb.json files}
 }
 \value{

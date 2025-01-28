@@ -11,6 +11,8 @@ read_qmo_data(qmo_directory, local_app = FALSE, ctdna = FALSE)
 MetricsOutput.tsv files}
 
 \item{local_app}{specifies whether quality metrics are coming from local app (default: FALSE)}
+
+\item{ctdna}{specifies whether quality metrics have been generated using ctdna workflow}
 }
 \value{
 A named list of combined.quality.metrics.output objects

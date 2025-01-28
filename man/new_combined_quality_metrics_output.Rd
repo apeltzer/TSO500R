@@ -15,6 +15,8 @@ new_combined_quality_metrics_output(
 \item{metrics_file_path}{a file path to a MetricsOutput.tsv file}
 
 \item{local_app}{specifies whether quality metrics are coming from local app}
+
+\item{ctdna}{specifies whether quality metrics have been generated using ctdna workflow}
 }
 \value{
 A quality.metrics.output object

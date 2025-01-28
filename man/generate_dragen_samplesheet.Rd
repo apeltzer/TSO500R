@@ -36,6 +36,8 @@ generate_dragen_samplesheet(
 
 \item{adapter_behavior}{this indicates that the BCL Convert software trims the specified adapter sequences from each read (default: trim)}
 
+\item{patient_column}{column that holds the subject information (default: Pat_ID)}
+
 \item{minimum_trimmed_read_length}{reads with a length trimmed below this point are masked (default: 35)}
 
 \item{mask_short_reads}{reads with a length trimmed below this point are masked (default: 35)}

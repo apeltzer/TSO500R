@@ -4,6 +4,7 @@
 #'
 #' @param metrics_file_path a file path to a MetricsOutput.tsv file
 #' @param local_app specifies whether quality metrics are coming from local app
+#' @param ctdna specifies whether quality metrics have been generated using ctdna workflow
 #'
 #' @return A quality.metrics.output object
 #' 
@@ -17,12 +18,13 @@ qualitymetrics <- function(metrics_file_path, local_app=FALSE, ctdna=FALSE){
 #'
 #' @param metrics_file_path a file path to a MetricsOutput.tsv file
 #' @param local_app specifies whether quality metrics are coming from local app
+#' @param ctdna specifies whether quality metrics have been generated using ctdna workflow
 #'
 #' @return A quality.metrics.output object
 new_combined_quality_metrics_output <- function(metrics_file_path, local_app=FALSE, ctdna=FALSE) {
 
   qm_file <- readr::read_file(metrics_file_path)
-  split_qmo_string <- stringr::str_split(string = qm_file, pattern = "\\[") %>% unlist()
+  split_qmo_string <- stringr::str_split(string = qm_file, pattern = "\\[") |> unlist()
   
   notes_section_index <- ifelse(ctdna, 10, 12)
 
@@ -63,6 +65,7 @@ validate_tso500_qc <- function() {}
 #' @param qmo_directory a file path to a directory containing one of more
 #' MetricsOutput.tsv files
 #' @param local_app specifies whether quality metrics are coming from local app (default: FALSE)
+#' @param ctdna specifies whether quality metrics have been generated using ctdna workflow
 #'
 #' @return A named list of combined.quality.metrics.output objects
 #' @export
@@ -73,7 +76,7 @@ read_qmo_data <- function(qmo_directory, local_app=FALSE, ctdna=FALSE){
     full.names = TRUE
   )
   
-  qmo_data <- map(qmo_files, qualitymetrics, local_app, ctdna) %>%
+  qmo_data <- purrr::map(qmo_files, qualitymetrics, local_app, ctdna) |>
     set_names(str_remove(basename(qmo_files), "\\.tsv$")) 
 
   qmo_data
@@ -242,7 +245,7 @@ get_dna_qc_metrics.combined.quality.metrics.output <- function(qmo_obj){
             dna_qc_metrics_df <- data.frame()
         } else {
             dna_qc_metrics_df <- qmo_obj$dna_qc_metrics %>% 
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -262,7 +265,7 @@ get_dna_qc_metrics_snvtmb.combined.quality.metrics.output <- function(qmo_obj){
             dna_qc_metrics_snvtmb_df <- data.frame()
         } else {
             dna_qc_metrics_snvtmb_df <- qmo_obj$dna_qc_metrics_snvtmb %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -282,7 +285,7 @@ get_dna_qc_metrics_msi.combined.quality.metrics.output <- function(qmo_obj){
             dna_qc_metrics_msi_df <- data.frame()
         } else {
             dna_qc_metrics_msi_df <- qmo_obj$dna_qc_metrics_msi %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -302,7 +305,7 @@ get_dna_qc_metrics_cnv.combined.quality.metrics.output <- function(qmo_obj){
             dna_qc_metrics_cnv_df <- data.frame()
         } else {
             dna_qc_metrics_cnv_df <- qmo_obj$dna_qc_metrics_cnv %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -322,7 +325,7 @@ get_dna_expanded_metrics.combined.quality.metrics.output <- function(qmo_obj){
             dna_expanded_metrics_df <- data.frame()
         } else {
             dna_expanded_metrics_df <- qmo_obj$dna_expanded_metrics %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -342,7 +345,7 @@ get_rna_qc_metrics.combined.quality.metrics.output <- function(qmo_obj){
             rna_qc_metrics_df <- data.frame()
         } else {
             rna_qc_metrics_df <- qmo_obj$rna_qc_metrics %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -362,7 +365,7 @@ get_rna_expanded_metrics.combined.quality.metrics.output <- function(qmo_obj){
             rna_expanded_metrics_df <- data.frame()
         } else {
             rna_expanded_metrics_df <- qmo_obj$rna_expanded_metrics %>%
-                pivot_longer(!metric_uom, names_to = "sample_id") %>%
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -396,7 +399,7 @@ parse_qmo_record <- function(record_string){
 #' @return data.frame
 parse_qmo_table <- function(table_string){
   
-  intermediate <- table_string %>% 
+  intermediate <- table_string |>
     trim_qmo_header_and_footer()
   
   header_line <- stringr::str_extract(intermediate, ".+\n")

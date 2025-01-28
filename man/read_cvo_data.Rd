@@ -9,7 +9,9 @@ read_cvo_data(cvo_directory, local_app = FALSE, ctdna = FALSE)
 \arguments{
 \item{cvo_directory}{a file path to a directory containing one of more CombinedVariantOutput.tsv files}
 
-\item{local_app}{specifies whether quality metrics are coming from local app}
+\item{local_app}{specifies whether data has been generated using the local app}
+
+\item{ctdna}{specifies whether data has been generated using ctdna workflow}
 }
 \value{
 A named list of combined.variant.output objects

@@ -60,10 +60,10 @@ write_rdata_file <- function(data_frames, file_path){
 #'
 #' @export
 write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_frame, variant_stats, tmb_msi_data_frame, folder_path){
-  write.table(analysis_details_frame, paste0(folder_path, "analysis_details.txt"), row.names = FALSE)
-  write.table(sequencing_run_details_frame, paste0(folder_path, "sequencing_run_details.txt"), row.names = FALSE)
-  write.table(variant_stats, paste0(folder_path, "variant_stats.txt"), row.name = FALSE)
-  write.table(tmb_msi_data_frame, paste0(folder_path, "tmb_msi_statistics.txt"), row.names = FALSE)
+  utils::write.table(analysis_details_frame, paste0(folder_path, "analysis_details.txt"), row.names = FALSE)
+  utils::write.table(sequencing_run_details_frame, paste0(folder_path, "sequencing_run_details.txt"), row.names = FALSE)
+  utils::write.table(variant_stats, paste0(folder_path, "variant_stats.txt"), row.name = FALSE)
+  utils::write.table(tmb_msi_data_frame, paste0(folder_path, "tmb_msi_statistics.txt"), row.names = FALSE)
 }
 
 #' Generate sample sheet for DRAGEN TSO500 Anaylsis Pipeline input based on TSO500 sample sheet.
@@ -76,6 +76,7 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @param adapter_read1 index read1 sequence
 #' @param adapter_read2 index read2 sequence
 #' @param adapter_behavior this indicates that the BCL Convert software trims the specified adapter sequences from each read (default: trim)
+#' @param patient_column column that holds the subject information (default: Pat_ID)
 #' @param minimum_trimmed_read_length reads with a length trimmed below this point are masked (default: 35)
 #' @param mask_short_reads reads with a length trimmed below this point are masked (default: 35)
 #' @param outfile path to output CSV file
@@ -128,7 +129,7 @@ ${tso500_data}"
                col_name3 = "",
                col_name4 = "",
                col_name5 = "") |>
-    format_csv()
+    readr::format_csv()
   
   # transform tso500 data
   tso500_data <- samplesheet_data$data |>
@@ -137,8 +138,8 @@ ${tso500_data}"
     mutate(Pair_ID = Sample_ID) |>
     tibble::add_column(Sample_Feature = "") |>
     tibble::add_column(Sample_Description = "") |>
-    mutate_all(~replace(., is.na(.), "")) |>
-    format_csv()
+    dplyr::mutate_all(~replace(., is.na(.), "")) |>
+    readr::format_csv()
   
   # replace values accordingly in template strings
   # content for the sample sheet header

@@ -10,7 +10,9 @@ new_combined_variant_output(cvo_file_path, local_app = FALSE, ctdna = FALSE)
 \arguments{
 \item{cvo_file_path}{a file path to a CombinedVariantOutput.tsv file}
 
-\item{local_app}{specifies whether quality metrics are coming from local app}
+\item{local_app}{specifies whether data has been generated using the local app}
+
+\item{ctdna}{specifies whether data has been generated using ctdna workflow}
 }
 \value{
 A combined.variant.output object
