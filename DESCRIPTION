@@ -13,7 +13,7 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
-Depends:
+Imports:
   dplyr,
   ggplot2,
   janitor,
@@ -22,4 +22,5 @@ Depends:
   purrr,
   readr,
   stringr,
-  tidyr
+  tidyr,
+  vcfR
