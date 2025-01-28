@@ -10,7 +10,7 @@ plot_onco_print(
   alter_list,
   variant_colors,
   heatmap_legend,
-  bottom_annotation = anno_empty(border = FALSE),
+  bottom_annotation = ComplexHeatmap::anno_empty(border = FALSE),
   top_annotation = anno_empty(border = FALSE),
   right_annotation = anno_empty(border = FALSE),
   left_annotation = anno_empty(border = FALSE),
@@ -36,10 +36,10 @@ plot_onco_print(
 
 \item{left_annotation}{the annotation object for the left, default: empty}
 
-\item{top}{Plot top {top} genes for given variant matrix (default: all)}
+\item{top}{Plot top x genes for given variant matrix (default: all)}
 }
 \value{
-ggplot object
+ComplexHeatmap object
 }
 \description{
 Plot OncoPrint plot for specified list of variants
