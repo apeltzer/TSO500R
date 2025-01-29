@@ -12,15 +12,18 @@
 #' @return the Excel workbook
 #'
 #' @export
-write_workbook <- function(workbook_name, data_frames, sheet_names){
+#'
+#' @importFrom openxlsx createWorkbook saveWorkbook
+#' @importFrom purrr walk
+write_workbook <- function(workbook_name, data_frames, sheet_names) {
   sheet_indices <- seq(length(data_frames))
-  workbook <- openxlsx::createWorkbook()
-  purrr::pwalk(
+  workbook <- createWorkbook()
+  pwalk(
     .l = list(data_frames, sheet_names, sheet_indices),
     .f = function(x, y, z) write_worksheet(x, y, z, workbook)
   )
-  openxlsx::saveWorkbook(wb = workbook,
-                         file = paste0(workbook_name, "_", Sys.Date(), ".xlsx"), overwrite = TRUE)
+  saveWorkbook(wb = workbook,
+              file = paste0(workbook_name, "_", Sys.Date(), ".xlsx"), overwrite = TRUE)
 }
 
 #' Write worksheet to Excel workbook.
@@ -32,9 +35,10 @@ write_workbook <- function(workbook_name, data_frames, sheet_names){
 #'
 #' @return the Excel workbook 
 #'
-write_worksheet <- function(data, sheet_name, sheet_index, workbook){
-  openxlsx::addWorksheet(wb = workbook, sheetName = sheet_name, gridLines = TRUE)
-  openxlsx::writeDataTable(wb = workbook, sheet = sheet_index, x = data)
+#' @importFrom openxlsx addWorksheet writeDataTable
+write_worksheet <- function(data, sheet_name, sheet_index, workbook) {
+  addWorksheet(wb = workbook, sheetName = sheet_name, gridLines = TRUE)
+  writeDataTable(wb = workbook, sheet = sheet_index, x = data)
 }
 
 #' Save data frames to RData object.
@@ -45,7 +49,7 @@ write_worksheet <- function(data, sheet_name, sheet_index, workbook){
 #' @return the provided data frames as RData object
 #'
 #' @export
-write_rdata_file <- function(data_frames, file_path){
+write_rdata_file <- function(data_frames, file_path) {
   save(data_frames, file = file_path)
 }
 
@@ -59,11 +63,14 @@ write_rdata_file <- function(data_frames, file_path){
 #' @return the files needed for generating a MultiQC report
 #'
 #' @export
-write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_frame, variant_stats, tmb_msi_data_frame,folder_path) {
-  utils::write.table(analysis_details_frame, paste0(folder_path, "analysis_details.txt"), row.names = FALSE)
-  utils::write.table(sequencing_run_details_frame, paste0(folder_path, "sequencing_run_details.txt"), row.names = FALSE)
-  utils::write.table(variant_stats, paste0(folder_path, "variant_stats.txt"), row.name = FALSE)
-  utils::write.table(tmb_msi_data_frame, paste0(folder_path, "tmb_msi_statistics.txt"), row.names = FALSE)
+#'
+#' @importFrom utils write.table
+write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_frame, variant_stats, tmb_msi_data_frame, 
+                               folder_path) {
+  write.table(analysis_details_frame, paste0(folder_path, "analysis_details.txt"), row.names = FALSE)
+  write.table(sequencing_run_details_frame, paste0(folder_path, "sequencing_run_details.txt"), row.names = FALSE)
+  write.table(variant_stats, paste0(folder_path, "variant_stats.txt"), row.name = FALSE)
+  write.table(tmb_msi_data_frame, paste0(folder_path, "tmb_msi_statistics.txt"), row.names = FALSE)
 }
 
 #' Generate sample sheet for DRAGEN TSO500 Anaylsis Pipeline input based on TSO500 sample sheet.
@@ -84,21 +91,28 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @return the dragen analysis input sample sheet
 #'
 #' @export
-generate_dragen_samplesheet <- function(samplesheet, file_format_version="2", run_name="RunName", instrument_type="NovaSeq", software_version="3.10.9", adapter_read1, adapter_read2, adapter_behavior="trim", patient_column="Pat_ID", minimum_trimmed_read_length=35, mask_short_reads=35, outfile){
+#'
+#' @importFrom dplyr mutate mutate_all select
+#' @importFrom tibble add_column
+#' @importFrom readr format_csv
+generate_dragen_samplesheet <- function(samplesheet, file_format_version = "2", run_name = "RunName", instrument_type =
+                                          "NovaSeq", software_version = "3.10.9", adapter_read1, adapter_read2,
+                                        adapter_behavior = "trim", patient_column = "Pat_ID",
+                                        minimum_trimmed_read_length = 35, mask_short_reads = 35, outfile) {
   # dragen sample sheet templates
   dragen_samplesheet_header <- "[Header],,,,,,,
 FileFormatVersion,${file_format_version},,,,,,
 RunName,${run_name},,,,,,
 InstrumentType,${instrument_type},,,,,,
 ,,,,,,,"
-  
+
   dragen_samplesheet_reads <- "[Reads],,,,,,,
 Read1Cycles,101,,,,,,
 Read2Cycles,101,,,,,,
 Index1Cycles,10,,,,,,
 Index2Cycles,10,,,,,,
 ,,,,,,,"
-  
+
   dragen_samplesheet_bclconvert <- "[BCLConvert_Settings],,,,,,,
 SoftwareVersion,${software_version},,,,,,
 AdapterRead1,${adapter_read1},,,,,,
@@ -117,31 +131,31 @@ ${bclconvert_data}
   dragen_samplesheet_tso500_data <- "[TSO500S_Data],,,,,,,
 ${tso500_data}"
 
-  # parse provided sample sheet 
+  # parse provided sample sheet
   samplesheet_data <- parse_illumina_samplesheet(samplesheet)
 
   # transform bclconvert data
   bclconvert_data <- samplesheet_data$data |>
-    mutate(Sample_ID = paste(Sample_ID, Index_ID, sep="_")) |>
+    mutate(Sample_ID = paste(Sample_ID, Index_ID, sep = "_")) |>
     select(c(Sample_ID, index, index2)) |>
-    tibble::add_column(
-                       col_name1 = "",
-                       col_name2 = "",
-                       col_name3 = "",
-                       col_name4 = "",
-                       col_name5 = "") |>
-    readr::format_csv()
+    add_column(
+               col_name1 = "",
+               col_name2 = "",
+               col_name3 = "",
+               col_name4 = "",
+               col_name5 = "") |>
+    format_csv()
 
   # transform tso500 data
   tso500_data <- samplesheet_data$data |>
-    select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,patient_column)) |>
-    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) |>
+    select(c(Sample_ID, Index_ID, Sample_Plate, Sample_Well, Sample_Type, patient_column)) |>
+    mutate(Sample_ID = paste(Sample_ID, Index_ID, sep = "_")) |>
     mutate(Pair_ID = Sample_ID) |>
-    tibble::add_column(Sample_Feature = "") |>
-    tibble::add_column(Sample_Description = "") |>
-    dplyr::mutate_all(~replace(., is.na(.), "")) |>
-    readr::format_csv()
-  
+    add_column(Sample_Feature = "") |>
+    add_column(Sample_Description = "") |>
+    mutate_all(~replace(., is.na(.), "")) |>
+    format_csv()
+
   # replace values accordingly in template strings
   # content for the sample sheet header
   dragen_header_string <- stringr::str_interp(dragen_samplesheet_header, list(file_format_version=file_format_version, run_name=run_name, instrument_type=instrument_type))
