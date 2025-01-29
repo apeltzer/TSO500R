@@ -27,11 +27,11 @@ read_tmb_trace_data <- function(tmb_directory){
     full.names = TRUE
   )
   
-  tmb_data = tibble(file = tmb_files) %>%
-    mutate(data = lapply(file, read_tsv)) %>%
-    unnest(data) %>%
-    mutate(sample_id = str_replace(basename(file), "_TMB_Trace.tsv|.tmb.trace.tsv", "")) %>%
-    select(-file) %>%
+  tmb_data = tibble(file = tmb_files) |>
+    mutate(data = lapply(file, read_tsv)) |>
+    unnest(data) |>
+    mutate(sample_id = str_replace(basename(file), "_TMB_Trace.tsv|.tmb.trace.tsv", "")) |>
+    select(-file) |>
     relocate(sample_id)
 
   tmb_data
@@ -52,12 +52,12 @@ read_tmb_details_data <- function(tmb_directory){
     full.names = TRUE
   )
 
-  tmb_data <- tibble(file = tmb_files) %>%
-    mutate(data = lapply(tmb_files, jsonlite::read_json)) %>%
-    unnest_wider(data) %>%
-    unnest_wider(Settings) %>%
-    mutate(sample_id = str_replace(basename(file), ".tmb.json", "")) %>%
-    select(-file) %>%
+  tmb_data <- tibble(file = tmb_files) |>
+    mutate(data = lapply(tmb_files, jsonlite::read_json)) |>
+    unnest_wider(data) |>
+    unnest_wider(Settings) |>
+    mutate(sample_id = str_replace(basename(file), ".tmb.json", "")) |>
+    select(-file) |>
     relocate(sample_id)
 
   tmb_data
@@ -78,14 +78,14 @@ read_tmb_details_data_csv <- function(tmb_directory){
     full.names = TRUE
   )
 
-  tmb_data <- tibble(file = tmb_files) %>%
-    mutate(data = lapply(tmb_files, read.table, header=FALSE, sep=",")) %>%
-    unnest_longer(data) %>%
-    unnest(data) %>%
-    select(-c(V1,V2)) %>%
-    pivot_wider(names_from=V3, values_from=V4) %>%
-    mutate(sample_id = str_replace(basename(file), ".tmb.metrics.csv", "")) %>%
-    select(-file) %>%
+  tmb_data <- tibble(file = tmb_files) |>
+    mutate(data = lapply(tmb_files, read.table, header=FALSE, sep=",")) |>
+    unnest_longer(data) |>
+    unnest(data) |>
+    select(-c(V1,V2)) |>
+    pivot_wider(names_from=V3, values_from=V4) |>
+    mutate(sample_id = str_replace(basename(file), ".tmb.metrics.csv", "")) |>
+    select(-file) |>
     relocate(sample_id)
 
   tmb_data

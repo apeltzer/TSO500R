@@ -28,7 +28,7 @@ new_combined_variant_output <- function(cvo_file_path, local_app=FALSE, ctdna=FA
   PERCENT_MSI_STRING <- 'Percent Unstable MSI Sites|SUM_JSD'
 
   cvo_file <- readr::read_file(cvo_file_path)
-  split_cvo_string <- stringr::str_split(string = cvo_file, pattern = "\\[") %>% unlist()
+  split_cvo_string <- stringr::str_split(string = cvo_file, pattern = "\\[") |> unlist()
 
   # parse analysis details, sequencing run details, TMB, and MSI part of provided CombinedVariantOutput file
   start_info <- which(grepl(ANALYSIS_DETAILS_STRING,split_cvo_string))
@@ -151,10 +151,10 @@ get_small_variants.combined.variant.output <- function(cvo_obj){
     if(all(is.na(cvo_obj$small_variants))){
       small_variant_df <- data.frame()
     } else {
-      small_variant_df <- cvo_obj$small_variants %>%
+      small_variant_df <- cvo_obj$small_variants |>
         dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
                                          cvo_obj$analysis_details$dna_sample_id, 
-                                         cvo_obj$analysis_details$pair_id)) %>%
+                                         cvo_obj$analysis_details$pair_id)) |>
         dplyr::select(sample_id, tidyr::everything())
   }
   )
@@ -246,12 +246,12 @@ get_fusions.combined.variant.output <- function(cvo_obj){
 #' @return char vector
 parse_cvo_record <- function(record_string){
 
-  intermediate <- record_string %>%
-    trim_cvo_header_and_footer() %>%
-    stringr::str_split("\n") %>%
-    unlist() %>%
-    stringr::str_remove("\\t$") %>%
-    stringr::str_split("\\t") %>%
+  intermediate <- record_string |>
+    trim_cvo_header_and_footer() |>
+    stringr::str_split("\n") |>
+    unlist() |>
+    stringr::str_remove("\\t$") |>
+    stringr::str_split("\\t") |>
     rapply(., function(x) ifelse(x=="NA",NA,x), how = "replace") # replace all string NAs with NA to avoid warnings from as.numeric
 
   if(stringr::str_detect(record_string, "\\[TMB\\]|\\[MSI\\]")){
@@ -272,7 +272,7 @@ parse_cvo_record <- function(record_string){
 #' @return data.frame
 parse_cvo_table <- function(table_string){
 
-  intermediate <- table_string %>% trim_cvo_header_and_footer()
+  intermediate <- table_string |> trim_cvo_header_and_footer()
   header_line <- stringr::str_extract(intermediate, ".+\n")
 
   if(stringr::str_detect(header_line, "\\t\\n")){
@@ -282,7 +282,7 @@ parse_cvo_table <- function(table_string){
       replacement = "\n")
   }
 
-  table_data <- intermediate %>% handle_empty_cvo_table_values()
+  table_data <- intermediate |> handle_empty_cvo_table_values()
   return(table_data)
 }
 
@@ -316,6 +316,6 @@ handle_empty_cvo_table_values <- function(intermediate_tbl){
 #' @return char vector
 trim_cvo_header_and_footer <- function(string){
   string |>
-    stringr::str_remove(".+\\t\\t\\n") %>%
+    stringr::str_remove(".+\\t\\t\\n") |>
     stringr::str_remove("[\\n\\t]+$")
 }

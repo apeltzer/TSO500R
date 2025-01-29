@@ -46,7 +46,7 @@ write_worksheet <- function(data, sheet_name, sheet_index, workbook){
 #'
 #' @export
 write_rdata_file <- function(data_frames, file_path){
-  save(data_frames, file=file_path)
+  save(data_frames, file = file_path)
 }
 
 #' Write files needed for reporting in MultiQC.
@@ -59,7 +59,7 @@ write_rdata_file <- function(data_frames, file_path){
 #' @return the files needed for generating a MultiQC report
 #'
 #' @export
-write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_frame, variant_stats, tmb_msi_data_frame, folder_path){
+write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_frame, variant_stats, tmb_msi_data_frame,folder_path) {
   utils::write.table(analysis_details_frame, paste0(folder_path, "analysis_details.txt"), row.names = FALSE)
   utils::write.table(sequencing_run_details_frame, paste0(folder_path, "sequencing_run_details.txt"), row.names = FALSE)
   utils::write.table(variant_stats, paste0(folder_path, "variant_stats.txt"), row.name = FALSE)
@@ -107,30 +107,31 @@ AdapterBehavior,${adapter_behavior},,,,,,
 MinimumTrimmedReadLength,${minimum_trimmed_read_length},,,,,,
 MaskShortReads,${mask_short_reads},,,,,,
 ,,,,,,,"
-  
+
   dragen_samplesheet_bclconvert_data <- "[BCLConvert_Data],,,,,,,
 ${bclconvert_data}
 ,,,,,,,
 [TSO500S_Settings],,,,,,,
 ,,,,,,,"
-  
+
   dragen_samplesheet_tso500_data <- "[TSO500S_Data],,,,,,,
 ${tso500_data}"
 
   # parse provided sample sheet 
   samplesheet_data <- parse_illumina_samplesheet(samplesheet)
-  
+
   # transform bclconvert data
   bclconvert_data <- samplesheet_data$data |>
-    mutate(Sample_ID = paste(Sample_ID,Index_ID,sep="_")) |>
-    select(c(Sample_ID,index,index2)) |>
-    tibble::add_column(col_name1 = "",
-               col_name2 = "",
-               col_name3 = "",
-               col_name4 = "",
-               col_name5 = "") |>
+    mutate(Sample_ID = paste(Sample_ID, Index_ID, sep="_")) |>
+    select(c(Sample_ID, index, index2)) |>
+    tibble::add_column(
+                       col_name1 = "",
+                       col_name2 = "",
+                       col_name3 = "",
+                       col_name4 = "",
+                       col_name5 = "") |>
     readr::format_csv()
-  
+
   # transform tso500 data
   tso500_data <- samplesheet_data$data |>
     select(c(Sample_ID,Index_ID,Sample_Plate,Sample_Well,Sample_Type,patient_column)) |>

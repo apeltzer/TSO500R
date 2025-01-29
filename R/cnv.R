@@ -20,11 +20,11 @@ cnv <- function(cnv_file_path, local_app=FALSE){
 #' @return A combined.cnv.output object
 new_cnv_output <- function(cnv_file_path, local_app=FALSE) {
 
-  cnv_data = tibble(file = cnv_file_path) %>%
-    mutate(data = lapply(file, parse_vcf_to_df)) %>%
-    unnest(data) %>%
-    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants.vcf", "")) %>%
-    select(-file) %>%
+  cnv_data = tibble(file = cnv_file_path) |>
+    mutate(data = lapply(file, parse_vcf_to_df)) |>
+    unnest(data) |>
+    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants.vcf", "")) |>
+    select(-file) |>
     relocate(sample_id)
 
   return(structure(cnv_data, class = "combined.cnv.output"))
@@ -45,7 +45,7 @@ read_cnv_data <- function(cnv_directory, local_app=FALSE){
     recursive = TRUE,
     full.names = TRUE
   )
-  cnv_data <- map(cnv_files, cnv, local_app)  %>%
+  cnv_data <- map(cnv_files, cnv, local_app)  |>
     set_names(str_remove(basename(cnv_files), "\\.vcf$")) 
   cnv_data
 }
@@ -66,11 +66,11 @@ summarize_cnv_data <- function(cnv_directory){
     full.names = TRUE
   )
 
-  cnv_data = tibble::tibble(file = cnv_files) %>%
-    mutate(data = lapply(file, parse_vcf_to_df)) %>%
-    tidyr::unnest(data) %>%
-    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants\\.vcf$", "")) %>%
-    select(-file) %>%
+  cnv_data = tibble::tibble(file = cnv_files) |>
+    mutate(data = lapply(file, parse_vcf_to_df)) |>
+    tidyr::unnest(data) |>
+    mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants\\.vcf$", "")) |>
+    select(-file) |>
     dplyr::relocate(sample_id)
 
   cnv_data

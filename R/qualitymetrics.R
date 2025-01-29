@@ -202,7 +202,7 @@ get_run_qc_metrics.combined.quality.metrics.output <- function(qmo_obj){
     if(all(is.na(qmo_obj$run_qc_metrics))){
       run_qc_metrics_df <- data.frame()
     } else {
-      run_qc_metrics_df <- qmo_obj$run_qc_metrics %>% 
+      run_qc_metrics_df <- qmo_obj$run_qc_metrics |> 
         select(metric_uom, lsl_guideline, usl_guideline, value)
 
     }
@@ -222,10 +222,10 @@ get_analysis_status.combined.quality.metrics.output <- function(qmo_obj){
     if(all(is.na(qmo_obj$analysis_status))){
       analysis_status_df <- data.frame()
     } else {
-      analysis_status_df <- qmo_obj$analysis_status %>%
-        rename(metric = x) %>%
-        mutate(across(is.logical, ~as.character(.x))) %>% #otherwise pivot_longer will fail due to logical + character
-        pivot_longer(!metric, names_to = "sample_id") %>%
+      analysis_status_df <- qmo_obj$analysis_status |>
+        rename(metric = x) |>
+        mutate(across(is.logical, ~as.character(.x))) |> #otherwise pivot_longer will fail due to logical + character
+        pivot_longer(!metric, names_to = "sample_id") |>
         pivot_wider(names_from = metric, values_from = value)
     }
   )
@@ -244,8 +244,8 @@ get_dna_qc_metrics.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$dna_qc_metrics))){
             dna_qc_metrics_df <- data.frame()
         } else {
-            dna_qc_metrics_df <- qmo_obj$dna_qc_metrics %>% 
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            dna_qc_metrics_df <- qmo_obj$dna_qc_metrics |> 
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -264,8 +264,8 @@ get_dna_qc_metrics_snvtmb.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$dna_qc_metrics_snvtmb))){
             dna_qc_metrics_snvtmb_df <- data.frame()
         } else {
-            dna_qc_metrics_snvtmb_df <- qmo_obj$dna_qc_metrics_snvtmb %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            dna_qc_metrics_snvtmb_df <- qmo_obj$dna_qc_metrics_snvtmb |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -284,8 +284,8 @@ get_dna_qc_metrics_msi.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$dna_qc_metrics_msi))){
             dna_qc_metrics_msi_df <- data.frame()
         } else {
-            dna_qc_metrics_msi_df <- qmo_obj$dna_qc_metrics_msi %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            dna_qc_metrics_msi_df <- qmo_obj$dna_qc_metrics_msi |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -304,8 +304,8 @@ get_dna_qc_metrics_cnv.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$dna_qc_metrics_cnv))){
             dna_qc_metrics_cnv_df <- data.frame()
         } else {
-            dna_qc_metrics_cnv_df <- qmo_obj$dna_qc_metrics_cnv %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            dna_qc_metrics_cnv_df <- qmo_obj$dna_qc_metrics_cnv |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -324,8 +324,8 @@ get_dna_expanded_metrics.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$dna_expanded_metrics))){
             dna_expanded_metrics_df <- data.frame()
         } else {
-            dna_expanded_metrics_df <- qmo_obj$dna_expanded_metrics %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            dna_expanded_metrics_df <- qmo_obj$dna_expanded_metrics |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -344,8 +344,8 @@ get_rna_qc_metrics.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$rna_qc_metrics))){
             rna_qc_metrics_df <- data.frame()
         } else {
-            rna_qc_metrics_df <- qmo_obj$rna_qc_metrics %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            rna_qc_metrics_df <- qmo_obj$rna_qc_metrics |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -364,8 +364,8 @@ get_rna_expanded_metrics.combined.quality.metrics.output <- function(qmo_obj){
         if(all(is.na(qmo_obj$rna_expanded_metrics))){
             rna_expanded_metrics_df <- data.frame()
         } else {
-            rna_expanded_metrics_df <- qmo_obj$rna_expanded_metrics %>%
-                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") %>%
+            rna_expanded_metrics_df <- qmo_obj$rna_expanded_metrics |>
+                tidyr::pivot_longer(!metric_uom, names_to = "sample_id") |>
                 pivot_wider(names_from = metric_uom)
         }
     )
@@ -379,11 +379,11 @@ get_rna_expanded_metrics.combined.quality.metrics.output <- function(qmo_obj){
 #' @return char vector
 parse_qmo_record <- function(record_string){
 
-  intermediate <- record_string %>%
-    trim_qmo_header_and_footer() %>%
-    stringr::str_split("\n") %>%
-    unlist() %>%
-    stringr::str_remove("\\t$") %>%
+  intermediate <- record_string |>
+    trim_qmo_header_and_footer() |>
+    stringr::str_split("\n") |>
+    unlist() |>
+    stringr::str_remove("\\t$") |>
     stringr::str_split("\\t")
 
   record <- purrr::map(intermediate, ~ .x[2])
@@ -411,7 +411,7 @@ parse_qmo_table <- function(table_string){
       replacement = "\n")
   }
 
-  table_data <- intermediate %>% handle_empty_qmo_table_values()
+  table_data <- intermediate |> handle_empty_qmo_table_values()
   return(table_data)
 }
 
@@ -436,9 +436,9 @@ handle_empty_qmo_table_values <- function(intermediate_tbl){
 #'
 #' @return char vector
 trim_qmo_header_and_footer <- function(string){
-  string %>%
-    stringr::str_remove(".+\\t\\t\\n") %>%
-    stringr::str_remove_all("[\\t]{2,}") %>%
+  string |>
+    stringr::str_remove(".+\\t\\t\\n") |>
+    stringr::str_remove_all("[\\t]{2,}") |>
     stringr::str_remove("[\\n\\t]+$")
 }
 

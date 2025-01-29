@@ -9,7 +9,7 @@
 #' @export
 read_small_variants <- function(cvo_list){
 
-  small_variants <- purrr::map(cvo_list, get_small_variants) %>%
+  small_variants <- purrr::map(cvo_list, get_small_variants) |>
     dplyr::bind_rows()
 
   return(small_variants)
@@ -26,7 +26,7 @@ read_small_variants <- function(cvo_list){
 #' @export
 read_gene_amplifications <- function(cvo_list){
 
-  gene_amplifications <- purrr::map(cvo_list, get_gene_amplifications) %>%
+  gene_amplifications <- purrr::map(cvo_list, get_gene_amplifications) |>
     dplyr::bind_rows()
 
   return(gene_amplifications)
@@ -43,7 +43,7 @@ read_gene_amplifications <- function(cvo_list){
 #' @export
 read_fusions <- function(cvo_list){
 
-  fusions <- purrr::map(cvo_list, get_fusions) %>%
+  fusions <- purrr::map(cvo_list, get_fusions) |>
     dplyr::bind_rows()
 
   return(fusions)
@@ -60,7 +60,7 @@ read_fusions <- function(cvo_list){
 #' @export
 read_splice_variants <- function(cvo_list){
 
-  splice_variants <- purrr::map(cvo_list, get_splice_variants) %>%
+  splice_variants <- purrr::map(cvo_list, get_splice_variants) |>
     dplyr::bind_rows()
 
   return(splice_variants)
@@ -77,7 +77,7 @@ read_splice_variants <- function(cvo_list){
 #' @export
 read_run_qc_metrics <- function(qmo_list){
 
-  run_qc_metrics <- purrr::map(qmo_list, get_run_qc_metrics) %>%
+  run_qc_metrics <- purrr::map(qmo_list, get_run_qc_metrics) |>
     dplyr::bind_rows()
 
   return(run_qc_metrics)
@@ -94,7 +94,7 @@ read_run_qc_metrics <- function(qmo_list){
 #' @export
 read_analysis_status <- function(qmo_list){
 
-  analysis_status <- purrr::map(qmo_list, get_analysis_status) %>%
+  analysis_status <- purrr::map(qmo_list, get_analysis_status) |>
     dplyr::bind_rows()
 
   return(analysis_status)
@@ -111,7 +111,7 @@ read_analysis_status <- function(qmo_list){
 #' @export
 read_dna_qc_metrics <- function(qmo_list){
 
-  dna_qc_metrics <- purrr::map(qmo_list, get_dna_qc_metrics) %>%
+  dna_qc_metrics <- purrr::map(qmo_list, get_dna_qc_metrics) |>
     dplyr::bind_rows()
 
   return(dna_qc_metrics)
@@ -128,7 +128,7 @@ read_dna_qc_metrics <- function(qmo_list){
 #' @export
 read_dna_qc_metrics_snvtmb <- function(qmo_list){
 
-  dna_qc_metrics_snvtmb <- purrr::map(qmo_list, get_dna_qc_metrics_snvtmb) %>%
+  dna_qc_metrics_snvtmb <- purrr::map(qmo_list, get_dna_qc_metrics_snvtmb) |>
     dplyr::bind_rows()
 
   return(dna_qc_metrics_snvtmb)
@@ -145,7 +145,7 @@ read_dna_qc_metrics_snvtmb <- function(qmo_list){
 #' @export
 read_dna_qc_metrics_msi <- function(qmo_list){
 
-  dna_qc_metrics_msi <- purrr::map(qmo_list, get_dna_qc_metrics_msi) %>%
+  dna_qc_metrics_msi <- purrr::map(qmo_list, get_dna_qc_metrics_msi) |>
     dplyr::bind_rows()
 
   return(dna_qc_metrics_msi)
@@ -162,7 +162,7 @@ read_dna_qc_metrics_msi <- function(qmo_list){
 #' @export
 read_dna_qc_metrics_cnv <- function(qmo_list){
 
-  dna_qc_metrics_cnv <- purrr::map(qmo_list, get_dna_qc_metrics_cnv) %>%
+  dna_qc_metrics_cnv <- purrr::map(qmo_list, get_dna_qc_metrics_cnv) |>
     dplyr::bind_rows()
 
   return(dna_qc_metrics_cnv)
@@ -179,7 +179,7 @@ read_dna_qc_metrics_cnv <- function(qmo_list){
 #' @export
 read_dna_expanded_metrics <- function(qmo_list){
 
-  dna_expanded_metrics <- purrr::map(qmo_list, get_dna_expanded_metrics) %>%
+  dna_expanded_metrics <- purrr::map(qmo_list, get_dna_expanded_metrics) |>
     dplyr::bind_rows()
 
   return(dna_expanded_metrics)
@@ -196,7 +196,7 @@ read_dna_expanded_metrics <- function(qmo_list){
 #' @export
 read_rna_qc_metrics <- function(qmo_list){
 
-  rna_qc_metrics <- purrr::map(qmo_list, get_rna_qc_metrics) %>%
+  rna_qc_metrics <- purrr::map(qmo_list, get_rna_qc_metrics) |>
     dplyr::bind_rows()
 
   return(rna_qc_metrics)
@@ -213,7 +213,7 @@ read_rna_qc_metrics <- function(qmo_list){
 #' @export
 read_rna_expanded_metrics <- function(qmo_list){
 
-  rna_expanded_metrics <- purrr::map(qmo_list, get_rna_expanded_metrics) %>%
+  rna_expanded_metrics <- purrr::map(qmo_list, get_rna_expanded_metrics) |>
     dplyr::bind_rows()
 
   return(rna_expanded_metrics)
@@ -237,11 +237,11 @@ parse_vcf_to_df <- function(path) {
   gt_df <- vcfR2tidy(vcf_content)$gt
   
   # create addition column with observed nucleotides in order to avoid collisions when we do the left_join
-  #gt_df <- gt_df %>%
+  #gt_df <- gt_df |>
   #  dplyr::mutate(ALT = str_split_i(gt_GT_alleles, "/", 2))
   
   # next use ChromKey, POS and ALT for joining vcf content data frames
-  joined_vcf_df <- fixed_df %>%
+  joined_vcf_df <- fixed_df |>
     dplyr::left_join(gt_df, by = c("ChromKey", "POS"))
   
   as_tibble(joined_vcf_df)
@@ -294,10 +294,10 @@ process_and_filter_small_variant_data <- function(small_variant_df){
                             "synonymous_variant",
                             "upstream_gene_variant")
 
-  updated_df <- small_variant_df %>%
-    filter_consequences(variant_consequences) %>%
-    filter_depth(depth_limit = 0) %>%
-    parse_p_dot_notation() %>%
+  updated_df <- small_variant_df |>
+    filter_consequences(variant_consequences) |>
+    filter_depth(depth_limit = 0) |>
+    parse_p_dot_notation() |>
     update_annotation_join_columns()
 
   return(updated_df)
@@ -315,7 +315,7 @@ process_and_filter_small_variant_data <- function(small_variant_df){
 #' 
 #' @export
 filter_consequences <- function(variant_df, consequences, type_column="consequence_s"){
-  filtered_df <- variant_df %>%
+  filtered_df <- variant_df |>
     dplyr::filter(!(get(type_column) %in% consequences | is.na(get(type_column)) | get(type_column) == ""))
   return(filtered_df)
 }
@@ -331,7 +331,7 @@ filter_consequences <- function(variant_df, consequences, type_column="consequen
 #' 
 #' @export
 keep_consequences <- function(variant_df, consequences, type_column="consequence_s"){
-  filtered_df <- variant_df %>%
+  filtered_df <- variant_df |>
     dplyr::filter(get(type_column) %in% consequences )
   return(filtered_df)
 }
@@ -426,7 +426,7 @@ parse_p_dot_notation <- function(small_variant_df){
 #'
 #' @return data frame
 update_annotation_join_columns <- function(small_variant_df){
-  mutated_df <- small_variant_df %>%
+  mutated_df <- small_variant_df |>
     dplyr::mutate(
       protein = paste(gene, protein, sep = "_"),
       coord_id = paste(chromosome, genomic_position, sep = "_")
@@ -458,7 +458,7 @@ add_annotation_data <- function(small_variant_df, annotation_data_list){
 #'
 #' @export
 add_tmb_variant_data <- function(small_variant_df, tmb_variant_df){
-  joined_data <- small_variant_df %>% 
+  joined_data <- small_variant_df |> 
     left_join(tmb_variant_df, by = c("sample_id", "chromosome" = "Chromosome", "genomic_position" = "Position", "reference_call" = "RefCall", "alternative_call" = "AltCall"))
   return(joined_data)
 }
@@ -473,12 +473,12 @@ add_tmb_variant_data <- function(small_variant_df, tmb_variant_df){
 #'
 #' @export
 add_amplification_data <- function(small_variant_df, amplification_df){
-  prepared_amplification_df <- amplification_df %>% 
-    dplyr::mutate(variant_type = if_else(fold_change < 1.0, "DEL", "DUP")) %>% 
+  prepared_amplification_df <- amplification_df |> 
+    dplyr::mutate(variant_type = if_else(fold_change < 1.0, "DEL", "DUP")) |> 
     dplyr::select(-fold_change)
 
-  joined_data <- small_variant_df %>% 
-    rename(variant_type = consequence_s) %>%
+  joined_data <- small_variant_df |> 
+    rename(variant_type = consequence_s) |>
     bind_rows(prepared_amplification_df)
   return(joined_data)
 }
@@ -507,10 +507,10 @@ get_metrics_df <- function(cvo_data){
   tmb_df <- extract_metrics(cvo_data, category = "tmb")
   msi_df <- extract_metrics(cvo_data, category = "msi")
   
-  metrics_df <- dplyr::bind_cols(tmb_df, msi_df) %>%
+  metrics_df <- dplyr::bind_cols(tmb_df, msi_df) |>
     dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
                                                       .x$analysis_details$dna_sample_id, 
-                                                      .x$analysis_details$pair_id))) %>%
+                                                      .x$analysis_details$pair_id))) |>
     dplyr::select(sample_id, tidyr::everything())
   return(metrics_df)
 }
@@ -525,10 +525,10 @@ get_metrics_df <- function(cvo_data){
 #' @export
 get_analysis_details_df <- function(cvo_data){
   analysis_details <- extract_metrics(cvo_data, category = "analysis_details")
-  analysis_details_df <- analysis_details %>%
+  analysis_details_df <- analysis_details |>
     dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
                                                                 .x$analysis_details$dna_sample_id, 
-                                                                .x$analysis_details$pair_id))) %>%
+                                                                .x$analysis_details$pair_id))) |>
     dplyr::select(sample_id, tidyr::everything())
   return(analysis_details_df)
 }
@@ -543,10 +543,10 @@ get_analysis_details_df <- function(cvo_data){
 #' @export
 get_sequencing_run_details_df <- function(cvo_data){
   sequencing_run_details <- extract_metrics(cvo_data, category = "sequencing_run_details")
-  sequencing_run_details_df <- sequencing_run_details %>%
+  sequencing_run_details_df <- sequencing_run_details |>
     dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
                                                                 .x$analysis_details$dna_sample_id, 
-                                                                .x$analysis_details$pair_id))) %>%
+                                                                .x$analysis_details$pair_id))) |>
     dplyr::select(sample_id, tidyr::everything())
   return(sequencing_run_details_df)
 }
@@ -559,14 +559,14 @@ get_sequencing_run_details_df <- function(cvo_data){
 #' @return data.frame
 get_summarised_statistics_df <- function(data_df, column_name){
   if (!(nrow(data_df) == 0)) {
-    summarized_data_df <- data_df %>% 
-      group_by(sample_id) %>% 
-      summarise({{column_name}} := n()) %>% 
+    summarized_data_df <- data_df |> 
+      group_by(sample_id) |> 
+      summarise({{column_name}} := n()) |> 
       select(sample_id, {{column_name}})
   }
   else {
-    summarized_data_df <- data_df %>% 
-      tibble::add_column(sample_id = "") %>% 
+    summarized_data_df <- data_df |> 
+      tibble::add_column(sample_id = "") |> 
       tibble::add_column({{column_name}} := "")
   }
   return(summarized_data_df)
@@ -583,35 +583,35 @@ get_summarised_statistics_df <- function(data_df, column_name){
 get_count_df <- function(cvo_data){
   # most of the following steps are taken to make sure that we get numbers for all samples and 
   # variant types
-  default_df <- extract_metrics(cvo_data, category = "sequencing_run_details") %>%
+  default_df <- extract_metrics(cvo_data, category = "sequencing_run_details") |>
     dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
                                                                 .x$analysis_details$dna_sample_id, 
-                                                                .x$analysis_details$pair_id))) %>%
-    dplyr::select(sample_id) %>%
-    tibble::add_column(number_of_amplifications = NA) %>%
-    tibble::add_column(number_of_small_variants = NA) %>%
-    tibble::add_column(number_of_fusions = NA) %>%
+                                                                .x$analysis_details$pair_id))) |>
+    dplyr::select(sample_id) |>
+    tibble::add_column(number_of_amplifications = NA) |>
+    tibble::add_column(number_of_small_variants = NA) |>
+    tibble::add_column(number_of_fusions = NA) |>
     tibble::add_column(number_of_splice_variants = NA)
 
-  amps <- read_gene_amplifications(cvo_data) %>%
+  amps <- read_gene_amplifications(cvo_data) |>
     get_summarised_statistics_df("number_of_amplifications")
-  small_variants <- read_small_variants(cvo_data) %>%
+  small_variants <- read_small_variants(cvo_data) |>
     get_summarised_statistics_df("number_of_small_variants")
-  fusions <- read_fusions(cvo_data) %>%
+  fusions <- read_fusions(cvo_data) |>
     get_summarised_statistics_df("number_of_fusions")
-  splice_variants <- read_splice_variants(cvo_data) %>%
+  splice_variants <- read_splice_variants(cvo_data) |>
     get_summarised_statistics_df("number_of_splice_variants")
 
-  counts_df <- default_df %>% 
-    full_join(amps, by = 'sample_id') %>%
-    mutate(number_of_amplifications=coalesce(number_of_amplifications.x, number_of_amplifications.y)) %>%
-    full_join(small_variants, by = 'sample_id') %>%
-    mutate(number_of_small_variants=coalesce(number_of_small_variants.x,number_of_small_variants.y)) %>%
-    full_join(fusions, by = 'sample_id') %>%
-    mutate(number_of_fusions=coalesce(number_of_fusions.x,number_of_fusions.y)) %>%
-    full_join(splice_variants, by = 'sample_id') %>%
-    mutate(number_of_splice_variants=coalesce(number_of_splice_variants.x,number_of_splice_variants.y)) %>% 
-    select(sample_id, number_of_amplifications, number_of_small_variants, number_of_fusions, number_of_splice_variants) %>%
+  counts_df <- default_df |> 
+    full_join(amps, by = 'sample_id') |>
+    mutate(number_of_amplifications=coalesce(number_of_amplifications.x, number_of_amplifications.y)) |>
+    full_join(small_variants, by = 'sample_id') |>
+    mutate(number_of_small_variants=coalesce(number_of_small_variants.x,number_of_small_variants.y)) |>
+    full_join(fusions, by = 'sample_id') |>
+    mutate(number_of_fusions=coalesce(number_of_fusions.x,number_of_fusions.y)) |>
+    full_join(splice_variants, by = 'sample_id') |>
+    mutate(number_of_splice_variants=coalesce(number_of_splice_variants.x,number_of_splice_variants.y)) |> 
+    select(sample_id, number_of_amplifications, number_of_small_variants, number_of_fusions, number_of_splice_variants) |>
     mutate(number_of_amplifications = ifelse(is.na(number_of_amplifications), 0, number_of_amplifications), 
       number_of_fusions = ifelse(is.na(number_of_fusions), 0, number_of_fusions),
       number_of_small_variants = ifelse(is.na(number_of_small_variants), 0, number_of_small_variants),
@@ -631,7 +631,7 @@ get_count_df <- function(cvo_data){
 #' 
 #' @export
 prepare_dataframe_for_oncoprint <- function(variant_data_frame, id_column="sample_id", gene_column="gene", variant_type_column="consequence_s"){
-  oncoprint_df <- variant_data_frame %>%
+  oncoprint_df <- variant_data_frame |>
     pivot_wider(id_cols = id_column, names_from = gene_column, values_from = variant_type_column, values_fn = function(x) paste(x, collapse=";"))
 
     oncoprint_matrix <- as.matrix(oncoprint_df)
