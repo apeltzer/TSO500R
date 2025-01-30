@@ -535,7 +535,7 @@ add_tmb_variant_data <- function(small_variant_df, tmb_variant_df) {
 #'
 #' @export
 #'
-#' @importFrom dplyr mutate select rename bind_rows
+#' @importFrom dplyr mutate select rename bind_rows if_else
 add_amplification_data <- function(small_variant_df, amplification_df) {
   prepared_amplification_df <- amplification_df |>
     mutate(variant_type = if_else(fold_change < 1.0, "DEL", "DUP")) |>
@@ -554,8 +554,10 @@ add_amplification_data <- function(small_variant_df, amplification_df) {
 #' @param category category to extract, default: tmb
 #'
 #' @return data.frame
-extract_metrics <- function(cvo_data, category = "tmb"){
-  df <- purrr::map_dfr(cvo_data, purrr::pluck, category)
+#'
+#' @importFrom purrr map_dfr
+extract_metrics <- function(cvo_data, category = "tmb") {
+  df <- map_dfr(cvo_data, purrr::pluck, category)
   return(df)
 }
 
@@ -567,15 +569,19 @@ extract_metrics <- function(cvo_data, category = "tmb"){
 #' @return data frame with TMB/MSI metrics
 #'
 #' @export
-get_metrics_df <- function(cvo_data){
+#'
+#' @importFrom dplyr bind_cols mutate select
+#' @importForm purrr map_chr
+#' @importFrom tidyr everything
+get_metrics_df <- function(cvo_data) {
   tmb_df <- extract_metrics(cvo_data, category = "tmb")
   msi_df <- extract_metrics(cvo_data, category = "msi")
-  
-  metrics_df <- dplyr::bind_cols(tmb_df, msi_df) |>
-    dplyr::mutate(sample_id = purrr::map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id), 
-                                                      .x$analysis_details$dna_sample_id, 
-                                                      .x$analysis_details$pair_id))) |>
-    dplyr::select(sample_id, tidyr::everything())
+
+  metrics_df <- bind_cols(tmb_df, msi_df) |>
+    mutate(sample_id = map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id),
+                                                          .x$analysis_details$dna_sample_id,
+                                                          .x$analysis_details$pair_id))) |>
+    select(sample_id, everything())
   return(metrics_df)
 }
 
@@ -595,8 +601,8 @@ get_analysis_details_df <- function(cvo_data) {
   analysis_details <- extract_metrics(cvo_data, category = "analysis_details")
   analysis_details_df <- analysis_details |>
     mutate(sample_id = map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id),
-                                                                .x$analysis_details$dna_sample_id,
-                                                                .x$analysis_details$pair_id))) |>
+                                                          .x$analysis_details$dna_sample_id,
+                                                          .x$analysis_details$pair_id))) |>
     select(sample_id, everything())
   return(analysis_details_df)
 }
@@ -613,12 +619,12 @@ get_analysis_details_df <- function(cvo_data) {
 #' @importFrom dplyr mutate select
 #' @importFrom purrr map_chr
 #' @importFrom tidyr everything
-get_sequencing_run_details_df <- function(cvo_data){
+get_sequencing_run_details_df <- function(cvo_data) {
   sequencing_run_details <- extract_metrics(cvo_data, category = "sequencing_run_details")
   sequencing_run_details_df <- sequencing_run_details |>
     mutate(sample_id = map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id),
-                                                                .x$analysis_details$dna_sample_id,
-                                                                .x$analysis_details$pair_id))) |>
+                                                          .x$analysis_details$dna_sample_id,
+                                                          .x$analysis_details$pair_id))) |>
     select(sample_id, everything())
   return(sequencing_run_details_df)
 }
@@ -663,8 +669,8 @@ get_count_df <- function(cvo_data) {
   # variant types
   default_df <- extract_metrics(cvo_data, category = "sequencing_run_details") |>
     mutate(sample_id = map_chr(cvo_data, ~ ifelse(is.null(.x$analysis_details$pair_id),
-                                .x$analysis_details$dna_sample_id,
-                                .x$analysis_details$pair_id))) |>
+                                                          .x$analysis_details$dna_sample_id,
+                                                          .x$analysis_details$pair_id))) |>
     select(sample_id) |>
     add_column(number_of_amplifications = NA) |>
     add_column(number_of_small_variants = NA) |>

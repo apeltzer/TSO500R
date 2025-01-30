@@ -24,7 +24,7 @@ tmb <- function(tmb_file_path){
 #' @importFrom tidyr unnest
 #' @importFrom dplyr mutate relocate
 #' @importFrom stringr str_replace
-read_tmb_trace_data <- function(tmb_directory){
+read_tmb_trace_data <- function(tmb_directory) {
   tmb_files <- list.files(
     path = tmb_directory,
     pattern = "*TMB_Trace\\.tsv$|tmb.trace\\.tsv$",
@@ -55,7 +55,7 @@ read_tmb_trace_data <- function(tmb_directory){
 #' @importFrom tidyr unnest_wider
 #' @importFrom dplyr mutate relocate
 #' @importFrom stringr str_replace
-read_tmb_details_data <- function(tmb_directory){
+read_tmb_details_data <- function(tmb_directory) {
   tmb_files <- list.files(
     path = tmb_directory,
     pattern = "*tmb.json",
@@ -83,7 +83,7 @@ read_tmb_details_data <- function(tmb_directory){
 #' @export
 #'
 #' @importFrom stringr
-read_tmb_details_data_csv <- function(tmb_directory){
+read_tmb_details_data_csv <- function(tmb_directory) {
   tmb_files <- list.files(
     path = tmb_directory,
     pattern = "*tmb.metrics.csv",
