@@ -23,8 +23,8 @@ qualitymetrics <- function(metrics_file_path, local_app=FALSE, ctdna=FALSE) {
 #' @return A quality.metrics.output object
 #'
 #' @importFrom readr read_file
-#' @importFrom string str_split
-#' @importForm purrr map
+#' @importFrom stringr str_split
+#' @importFrom purrr map
 new_combined_quality_metrics_output <- function(metrics_file_path, local_app = FALSE, ctdna = FALSE) {
 
   qm_file <- read_file(metrics_file_path)
@@ -78,7 +78,7 @@ validate_tso500_qc <- function() {}
 #'
 #' @export
 #'
-#' @importFrom purr map set_names
+#' @importFrom purrr map set_names
 read_qmo_data <- function(qmo_directory, local_app = FALSE, ctdna = FALSE) {
   qmo_files <- list.files(
     path = qmo_directory,
@@ -231,7 +231,7 @@ get_run_qc_metrics.combined.quality.metrics.output <- function(qmo_obj) {
 #' @export
 #'
 #' @importFrom dplyr rename mutate
-#' @importFrom pivot_longer pivot_wider
+#' @importFrom tidyr pivot_longer pivot_wider
 get_analysis_status.combined.quality.metrics.output <- function(qmo_obj) {
   suppressWarnings(
     if(all(is.na(qmo_obj$analysis_status))){
@@ -489,6 +489,8 @@ trim_qmo_header_and_footer <- function(string) {
 #'
 #' @importFrom dplyr filter mutate select distinct rename bind_rows case_when
 #' @importFrom tidyr pivot_wider replace_na
+#' @importFrom gt gt data_color
+#'
 #' @export
 make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
   # field names for contamination qc
@@ -520,15 +522,15 @@ make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
   qc_failure_count <- rep(0, nrow(run_metrics_df))
   names(qc_failure_count) <- run_metrics_df[[id_col]]
   for (metric in metrics) {
-    # ignore contamination p value since it is only relevant in case of failed 
+    # ignore contamination p value since it is only relevant in case of failed
     # contamination score
     if (metric != p_value_field) {
       if(metric == contamination_field & (p_value_field %in% metrics)) {
         qc_failure_count <- qc_failure_count +
           replace_na(run_metrics_df[[metric]] < lsl[[metric]], 0) +
-          replace_na(run_metrics_df[[metric]] > usl[[metric]] & run_metrics_df[[p_value_field]] <= usl[[p_value_field]], 0)
-      }
-      else { 
+          replace_na(run_metrics_df[[metric]] > usl[[metric]] & run_metrics_df[[p_value_field]] <= 
+                       usl[[p_value_field]], 0)
+      } else {
         qc_failure_count <- qc_failure_count +
           replace_na(run_metrics_df[[metric]] < lsl[[metric]], 0) +
           replace_na(run_metrics_df[[metric]] > usl[[metric]], 0)
@@ -538,18 +540,18 @@ make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
 
   # Merge tables into one for GT
   merged_table <- bind_rows(
-      lsl |> mutate(group = "thresholds"),
-      usl |> mutate(group = "thresholds"),
-      run_metrics_df |> mutate(group = group_name, n_failed = qc_failure_count)
+    lsl |> mutate(group = "thresholds"),
+    usl |> mutate(group = "thresholds"),
+    run_metrics_df |> mutate(group = group_name, n_failed = qc_failure_count)
   )
 
   table_out <- merged_table |>
-      gt::gt(rowname_col = id_col, groupname_col = "group")
+    gt(rowname_col = id_col, groupname_col = "group")
 
   # Conditional formatting
   for (metric in c(metrics, "n_failed")) {
     table_out <- table_out |>
-      gt::data_color(
+      data_color(
         columns = metric,
         rows = group == group_name,
         fn = \(x) {
@@ -558,7 +560,7 @@ make_qc_table <- function(qc_df, id_col = "sample_id", group_name = "samples") {
             case_when(
               metric == p_value_field ~ "white",
               (p_value_available & metric == contamination_field & (x > usl[[metric]] & 
-                                                                      run_metrics_df[[p_value_field]] <= usl[[p_value_field]])) ~ "#F5CDB9",
+                                                                    run_metrics_df[[p_value_field]] <= usl[[p_value_field]])) ~ "#F5CDB9",
               (metric != contamination_field & x < lsl[[metric]]) ~ "#D2F2F7",
               (metric != contamination_field & x > usl[[metric]]) ~ "#F5CDB9",
               .default = "white"

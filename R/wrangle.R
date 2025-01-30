@@ -571,7 +571,7 @@ extract_metrics <- function(cvo_data, category = "tmb") {
 #' @export
 #'
 #' @importFrom dplyr bind_cols mutate select
-#' @importForm purrr map_chr
+#' @importFrom purrr map_chr
 #' @importFrom tidyr everything
 get_metrics_df <- function(cvo_data) {
   tmb_df <- extract_metrics(cvo_data, category = "tmb")
@@ -715,7 +715,7 @@ get_count_df <- function(cvo_data) {
 #'
 #' @export
 #'
-#' @importFrom dplyr pivor_widder
+#' @importFrom tidyr pivot_wider
 prepare_dataframe_for_oncoprint <- function(variant_data_frame, id_column="sample_id", gene_column="gene", variant_type_column="consequence_s") {
   oncoprint_df <- variant_data_frame |>
     pivot_wider(id_cols = id_column, names_from = gene_column, values_from = variant_type_column, values_fn = function(x) paste(x, collapse=";"))

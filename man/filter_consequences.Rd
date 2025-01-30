@@ -3,7 +3,7 @@
 \name{filter_consequences}
 \alias{filter_consequences}
 \title{Filters variant data for variant consequences. Removes
-any variant with a consequence matching the list of submitted consequences 
+any variant with a consequence matching the list of submitted consequences
 or an empty consequence field}
 \usage{
 filter_consequences(variant_df, consequences, type_column = "consequence_s")
@@ -20,6 +20,6 @@ data frame with filtered consequences
 }
 \description{
 Filters variant data for variant consequences. Removes
-any variant with a consequence matching the list of submitted consequences 
+any variant with a consequence matching the list of submitted consequences
 or an empty consequence field
 }
