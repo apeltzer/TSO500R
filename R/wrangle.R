@@ -358,12 +358,12 @@ process_and_filter_small_variant_data <- function(small_variant_df) {
 #' @importFrom dplyr filter
 filter_consequences <- function(variant_df, consequences, type_column = "consequence_s") {
   filtered_df <- variant_df |>
-    dplyr::filter(!(get(type_column) %in% consequences | is.na(get(type_column)) | get(type_column) == ""))
+    filter(!(get(type_column) %in% consequences | is.na(get(type_column)) | get(type_column) == ""))
   return(filtered_df)
 }
 
 #' Filters for variant data for variant consequences. Keeps
-#' any variant with a consequence matching the list of submitted consequences 
+#' any variant with a consequence matching the list of submitted consequences
 #'
 #' @param variant_df Data frame witgh variant data
 #' @param consequences List of consequences to keep
@@ -418,7 +418,7 @@ filter_germline_db <- function(small_variant_df) {
 #' @return data frame filtered by GermlineFilterProxi
 #'
 #' @export
-#' 
+#'
 #' @importFrom dplyr filter
 filter_germline_proxi <- function(small_variant_df) {
   filtered_df <- filter(small_variant_df, !GermlineFilterProxi)
@@ -536,6 +536,7 @@ add_tmb_variant_data <- function(small_variant_df, tmb_variant_df) {
 #' @export
 #'
 #' @importFrom dplyr mutate select rename bind_rows if_else
+#' @importFrom rlang .data
 add_amplification_data <- function(small_variant_df, amplification_df) {
   prepared_amplification_df <- amplification_df |>
     mutate(variant_type = if_else(fold_change < 1.0, "DEL", "DUP")) |>

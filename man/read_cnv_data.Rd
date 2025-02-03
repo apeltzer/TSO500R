@@ -9,7 +9,7 @@ read_cnv_data(cnv_directory, local_app = FALSE)
 \arguments{
 \item{cnv_directory}{a file path to a directory containing one of more *CopyNumberVariants.vcf files}
 
-\item{local_app}{specifies whether quality metrics are coming from local app}
+\item{local_app}{specifies whether the data is coming from local app}
 }
 \value{
 A named list of combined.cnv.output objects
