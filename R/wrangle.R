@@ -661,7 +661,7 @@ get_summarised_statistics_df <- function(data_df, column_name) {
 #'
 #' @export
 #'
-#' @importFrom dplyr mutate select full_join
+#' @importFrom dplyr mutate select full_join coalesce
 #' @importFrom purrr map_chr
 #' @importFrom tibble add_column
 get_count_df <- function(cvo_data) {

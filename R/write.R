@@ -95,6 +95,7 @@ write_multiqc_data <- function(analysis_details_frame, sequencing_run_details_fr
 #' @importFrom dplyr mutate mutate_all select
 #' @importFrom tibble add_column
 #' @importFrom readr format_csv
+#' @importFrom stringr str_sub
 generate_dragen_samplesheet <- function(samplesheet, file_format_version = "2", run_name = "RunName", instrument_type =
                                           "NovaSeq", software_version = "3.10.9", adapter_read1, adapter_read2,
                                         adapter_behavior = "trim", patient_column = "Pat_ID",

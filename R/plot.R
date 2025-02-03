@@ -103,17 +103,19 @@ plot_onco_print <- function(variant_matrix, column_title, alter_list, variant_co
 #' @param ggplot_object ggplot2 plot object
 #'
 #' @return ggplot object
-#' 
+#'
 #' @export
-add_common_theme_elements <- function(ggplot_object){
+#'
+#' @importFrom ggplot2 theme element_text element_blank element_rect
+add_common_theme_elements <- function(ggplot_object) {
   common_theme_elements <- theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0, size = 5),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0, size = 5),
     axis.text.y = element_text(size = 5),
-    axis.text = element_text(size=5),
+    axis.text = element_text(size = 5),
     legend.title = element_blank(),
     legend.position = "none",
     panel.background = element_rect(fill = 'white'),
-    panel.border = element_rect(fill= NA, color = "black")
+    panel.border = element_rect(fill = NA, color = "black")
   )
   g2 <- ggplot_object + common_theme_elements
   return(g2)

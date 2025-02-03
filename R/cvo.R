@@ -9,7 +9,7 @@
 #' @return A combined.variant.output object
 #' @export
 #'
-cvo <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE){
+cvo <- function(cvo_file_path, local_app = FALSE, ctdna = FALSE) {
   new_combined_variant_output(cvo_file_path, local_app, ctdna)
 }
 
@@ -21,41 +21,44 @@ cvo <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE){
 #' @param ctdna specifies whether data has been generated using ctdna workflow
 #'
 #' @return A combined.variant.output object
-new_combined_variant_output <- function(cvo_file_path, local_app=FALSE, ctdna=FALSE) {
+#'
+#' @importFrom readr read_file
+#' @importFrom stringr str_split
+#' @importFrom purrr map
+#' @importFrom stats na.omit
+new_combined_variant_output <- function(cvo_file_path, local_app = FALSE, ctdna = FALSE) {
 
-  ANALYSIS_DETAILS_STRING <- 'Analysis Details'
-  GENE_AMP_STRING <- c('Gene Amplifications', 'Copy Number Variants')
-  PERCENT_MSI_STRING <- 'Percent Unstable MSI Sites|SUM_JSD'
+  ANALYSIS_DETAILS_STRING <- "Analysis Details"
+  GENE_AMP_STRING <- c("Gene Amplifications", "Copy Number Variants")
+  PERCENT_MSI_STRING <- "Percent Unstable MSI Sites|SUM_JSD"
 
-  cvo_file <- readr::read_file(cvo_file_path)
-  split_cvo_string <- stringr::str_split(string = cvo_file, pattern = "\\[") |> unlist()
+  cvo_file <- read_file(cvo_file_path)
+  split_cvo_string <- str_split(string = cvo_file, pattern = "\\[") |> unlist()
 
   # parse analysis details, sequencing run details, TMB, and MSI part of provided CombinedVariantOutput file
   start_info <- which(grepl(ANALYSIS_DETAILS_STRING,split_cvo_string))
   end_info <- which(grepl(PERCENT_MSI_STRING, split_cvo_string))
-  
+
   # handle the parts of the file that are structured as key-value pairs
   # i.e. metadata and TMB/MSI sections
-  records <- purrr::map(split_cvo_string[start_info:end_info], parse_cvo_record)
+  records <- map(split_cvo_string[start_info:end_info], parse_cvo_record)
   names(records) <- c("analysis_details", "sequencing_run_details", "tmb", "msi")
 
   # handle the parts of the file that are structured as tabular data
   # i.e. gene amplifications, splice variants, fusions, and small variants
   start_data <- na.omit(pmatch(GENE_AMP_STRING, split_cvo_string))
   end_data <- length(split_cvo_string)
-  
-  tables <- purrr::map(split_cvo_string[start_data:end_data], parse_cvo_table)
-  
+
+  tables <- map(split_cvo_string[start_data:end_data], parse_cvo_table)
+
   # the number of tables is different between local app and DRAGEN analysis pipeline
   if (local_app) {
     names(tables) <- c("gene_amplifications", "splice_variants", "fusions", "small_variants")
-  }
-  else {
+  } else {
     if (ctdna) {
       names(tables) <- c("copy_number_variants", "dna_fusions", "small_variants")
-    }
-    else {
-    names(tables) <- c("gene_amplifications", "splice_variants", "fusions", "exon_level_cnvs", "small_variants")
+    } else {
+      names(tables) <- c("gene_amplifications", "splice_variants", "fusions", "exon_level_cnvs", "small_variants")
     }
   }
 
@@ -78,7 +81,7 @@ validate_tso500 <- function() {}
 #' @return A named list of combined.variant.output objects
 #'
 #' @export
-read_cvo_data <- function(cvo_directory, local_app=FALSE, ctdna=FALSE){
+read_cvo_data <- function(cvo_directory, local_app = FALSE, ctdna = FALSE) {
   cvo_files <- list.files(
     path = cvo_directory,
     pattern = "*CombinedVariantOutput\\.tsv$",
@@ -86,8 +89,8 @@ read_cvo_data <- function(cvo_directory, local_app=FALSE, ctdna=FALSE){
     full.names = TRUE
   )
   cvo_data <- purrr::map(cvo_files, cvo, local_app, ctdna)
-  names(cvo_data) <- purrr::map(cvo_data, ~ ifelse(ctdna, .x$analysis_details$dna_sample_id, 
-                                            .x$analysis_details$pair_id))
+  names(cvo_data) <- purrr::map(cvo_data, ~ ifelse(ctdna, .x$analysis_details$dna_sample_id,
+                                                   .x$analysis_details$pair_id))
   cvo_data
 }
 
@@ -99,7 +102,7 @@ read_cvo_data <- function(cvo_directory, local_app=FALSE, ctdna=FALSE){
 #' @return A data frame of small variants
 #'
 #' @export
-get_small_variants <- function(cvo_obj, ...){
+get_small_variants <- function(cvo_obj, ...) {
   UseMethod("get_small_variants", cvo_obj)
 }
 
@@ -111,7 +114,7 @@ get_small_variants <- function(cvo_obj, ...){
 #' @return A data frame of gene amplifications
 #'
 #' @export
-get_gene_amplifications <- function(cvo_obj, ...){
+get_gene_amplifications <- function(cvo_obj, ...) {
   UseMethod("get_gene_amplifications", cvo_obj)
 }
 
@@ -123,7 +126,7 @@ get_gene_amplifications <- function(cvo_obj, ...){
 #' @return A data frame of splice variants
 #'
 #' @export
-get_splice_variants <- function(cvo_obj, ...){
+get_splice_variants <- function(cvo_obj, ...) {
   UseMethod("get_splice_variants", cvo_obj)
 }
 
@@ -135,7 +138,7 @@ get_splice_variants <- function(cvo_obj, ...){
 #' @return A data frame of fusions
 #'
 #' @export
-get_fusions <- function(cvo_obj, ...){
+get_fusions <- function(cvo_obj, ...) {
   UseMethod("get_fusions", cvo_obj)
 }
 
@@ -146,16 +149,19 @@ get_fusions <- function(cvo_obj, ...){
 #' @method get_small_variants combined.variant.output
 #'
 #' @export
-get_small_variants.combined.variant.output <- function(cvo_obj){
+#'
+#' @importFrom dplyr mutate select
+#' @importFrom tidyr everything
+get_small_variants.combined.variant.output <- function(cvo_obj) {
   suppressWarnings(
     if(all(is.na(cvo_obj$small_variants))){
       small_variant_df <- data.frame()
     } else {
       small_variant_df <- cvo_obj$small_variants |>
-        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
-                                         cvo_obj$analysis_details$dna_sample_id, 
-                                         cvo_obj$analysis_details$pair_id)) |>
-        dplyr::select(sample_id, tidyr::everything())
+        mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
+                                  cvo_obj$analysis_details$dna_sample_id,
+                                  cvo_obj$analysis_details$pair_id)) |>
+        select(sample_id, everything())
   }
   )
   return(small_variant_df)
@@ -168,23 +174,26 @@ get_small_variants.combined.variant.output <- function(cvo_obj){
 #' @method get_gene_amplifications combined.variant.output
 #'
 #' @export
-get_gene_amplifications.combined.variant.output <- function(cvo_obj){
+#'
+#' @importFrom dplyr mutate select
+#' @importFrom tidyr everything
+get_gene_amplifications.combined.variant.output <- function(cvo_obj) {
   suppressWarnings(
-    if(all(is.na(cvo_obj$gene_amplifications)) & all(is.na(cvo_obj$copy_number_variants))){
+    if (all(is.na(cvo_obj$gene_amplifications)) & all(is.na(cvo_obj$copy_number_variants))) {
       gene_amplification_df <- data.frame()
     } else {
-      if(is.null(cvo_obj$gene_amplifications)) {
+      if (is.null(cvo_obj$gene_amplifications)) {
         gene_amplification_df <- cvo_obj$copy_number_variants
       } else {
         gene_amplification_df <- cvo_obj$gene_amplifications
       }
 
       gene_amplification_df <- gene_amplification_df |>
-        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
-                                         cvo_obj$analysis_details$dna_sample_id, 
-                                         cvo_obj$analysis_details$pair_id)) |>
-        dplyr::select(sample_id, tidyr::everything())
-  }
+        mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
+                                  cvo_obj$analysis_details$dna_sample_id,
+                                  cvo_obj$analysis_details$pair_id)) |>
+        select(sample_id, everything())
+    }
   )
   return(gene_amplification_df)
 }
@@ -196,17 +205,20 @@ get_gene_amplifications.combined.variant.output <- function(cvo_obj){
 #' @method get_splice_variants combined.variant.output
 #'
 #' @export
-get_splice_variants.combined.variant.output <- function(cvo_obj){
+#'
+#' @importFrom dplyr mutate select
+#' @importFrom tidyr everything
+get_splice_variants.combined.variant.output <- function(cvo_obj) {
   suppressWarnings(
-    if(all(is.na(cvo_obj$splice_variants))){
+    if (all(is.na(cvo_obj$splice_variants))){
       splice_variant_df <- data.frame()
     } else {
       splice_variant_df <- cvo_obj$splice_variants |>
-        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
-                                         cvo_obj$analysis_details$dna_sample_id, 
-                                         cvo_obj$analysis_details$pair_id)) |>
-        dplyr::select(sample_id, tidyr::everything())
-  }
+        mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
+                                  cvo_obj$analysis_details$dna_sample_id,
+                                  cvo_obj$analysis_details$pair_id)) |>
+        select(sample_id, everything())
+    }
   )
   return(splice_variant_df)
 }
@@ -220,7 +232,7 @@ get_splice_variants.combined.variant.output <- function(cvo_obj){
 #' @export
 get_fusions.combined.variant.output <- function(cvo_obj){
   suppressWarnings(
-    if(all(is.na(cvo_obj$fusions)) & all(is.na(cvo_obj$dna_fusions))){
+    if (all(is.na(cvo_obj$fusions)) & all(is.na(cvo_obj$dna_fusions))) {
       fusion_df <- data.frame()
     } else {
       if(is.null(cvo_obj$fusions)) {
@@ -230,8 +242,8 @@ get_fusions.combined.variant.output <- function(cvo_obj){
       }
 
       fusion_df <- fusion_df |>
-        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id), 
-                                         cvo_obj$analysis_details$dna_sample_id, 
+        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
+                                         cvo_obj$analysis_details$dna_sample_id,
                                          cvo_obj$analysis_details$pair_id)) |>
         dplyr::select(sample_id, tidyr::everything())
     }
@@ -244,24 +256,27 @@ get_fusions.combined.variant.output <- function(cvo_obj){
 #' @param record_string the record content as string
 #'
 #' @return char vector
-parse_cvo_record <- function(record_string){
-
+#'
+#' @importFrom stringr str_split str_remove str_detect
+#' @importFrom purrr map map_chr
+#' @importFrom janitor make_clean_names
+parse_cvo_record <- function(record_string) {
   intermediate <- record_string |>
     trim_cvo_header_and_footer() |>
-    stringr::str_split("\n") |>
+    str_split("\n") |>
     unlist() |>
-    stringr::str_remove("\\t$") |>
-    stringr::str_split("\\t") |>
+    str_remove("\\t$") |>
+    str_split("\\t") |>
     rapply(., function(x) ifelse(x=="NA",NA,x), how = "replace") # replace all string NAs with NA to avoid warnings from as.numeric
 
-  if(stringr::str_detect(record_string, "\\[TMB\\]|\\[MSI\\]")){
-    record <- purrr::map(intermediate, ~ as.numeric(.x[2]))
+  if(str_detect(record_string, "\\[TMB\\]|\\[MSI\\]")){
+    record <- map(intermediate, ~ as.numeric(.x[2]))
   } else {
-    record <- purrr::map(intermediate, ~ .x[2])
+    record <- map(intermediate, ~ .x[2])
   }
 
-  record_names <- purrr::map_chr(intermediate, ~ .x[1])
-  names(record) <- janitor::make_clean_names(record_names)
+  record_names <- map_chr(intermediate, ~ .x[1])
+  names(record) <- make_clean_names(record_names)
   return(record)
 }
 
@@ -270,16 +285,17 @@ parse_cvo_record <- function(record_string){
 #' @param table_string the table as string
 #'
 #' @return data.frame
-parse_cvo_table <- function(table_string){
-
+#'
+#' @importFrom stringr str_extract str_detect str_replace_all
+parse_cvo_table <- function(table_string) {
   intermediate <- table_string |> trim_cvo_header_and_footer()
-  header_line <- stringr::str_extract(intermediate, ".+\n")
+  header_line <- str_extract(intermediate, ".+\n")
 
-  if(stringr::str_detect(header_line, "\\t\\n")){
-    intermediate <- stringr::str_replace_all(
-      string = intermediate,
-      pattern = "\\t\\n",
-      replacement = "\n")
+  if (str_detect(header_line, "\\t\\n")) {
+    intermediate <- str_replace_all(
+                                    string = intermediate,
+                                    pattern = "\\t\\n",
+                                    replacement = "\n")
   }
 
   table_data <- intermediate |> handle_empty_cvo_table_values()
@@ -292,19 +308,22 @@ parse_cvo_table <- function(table_string){
 #' @param intermediate_tbl intermediate table string
 #'
 #' @return data.frame
-handle_empty_cvo_table_values <- function(intermediate_tbl){
-  if(stringr::str_detect(string = intermediate_tbl, pattern = "\\nNA$")){
-    cleaned_string <- stringr::str_replace(intermediate_tbl, "\\nNA", "")
-    if(stringr::str_length(cleaned_string) > 0) {
-      df <- utils::read.table(text = cleaned_string, sep = "\t", header = TRUE, fill = TRUE)
+#'
+#' @importFrom stringr str_detect str_replace str_length
+#' @importFrom utils read.table
+#' @importFrom janitor clean_names
+handle_empty_cvo_table_values <- function(intermediate_tbl) {
+  if (str_detect(string = intermediate_tbl, pattern = "\\nNA$")) {
+    cleaned_string <- str_replace(intermediate_tbl, "\\nNA", "")
+    if (str_length(cleaned_string) > 0) {
+      df <- read.table(text = cleaned_string, sep = "\t", header = TRUE, fill = TRUE)
       return(df)
-    }
-    else {
+    } else {
       return(NA)
     }
   } else {
-    to_clean <- utils::read.table(text = intermediate_tbl, sep = "\t", header = TRUE, fill = TRUE)
-    clean_name_df <- janitor::clean_names(to_clean)
+    to_clean <- read.table(text = intermediate_tbl, sep = "\t", header = TRUE, fill = TRUE)
+    clean_name_df <- clean_names(to_clean)
     return(clean_name_df)
   }
 }
@@ -314,7 +333,7 @@ handle_empty_cvo_table_values <- function(intermediate_tbl){
 #' @param string string with file content
 #'
 #' @return char vector
-trim_cvo_header_and_footer <- function(string){
+trim_cvo_header_and_footer <- function(string) {
   string |>
     stringr::str_remove(".+\\t\\t\\n") |>
     stringr::str_remove("[\\n\\t]+$")

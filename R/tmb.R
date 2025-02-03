@@ -84,6 +84,7 @@ read_tmb_details_data <- function(tmb_directory) {
 #'
 #' @importFrom dplyr mutate select relocate
 #' @importFrom tidyr unnest_longer unnest pivot_wider
+#' @importFrom tibble tibble
 read_tmb_details_data_csv <- function(tmb_directory) {
   tmb_files <- list.files(
     path = tmb_directory,

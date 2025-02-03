@@ -7,7 +7,7 @@
 #' @return A cnv.output object
 #' 
 #' @export
-cnv <- function(cnv_file_path, local_app=FALSE){
+cnv <- function(cnv_file_path, local_app = FALSE) {
   new_cnv_output(cnv_file_path)
 }
 
@@ -18,9 +18,11 @@ cnv <- function(cnv_file_path, local_app=FALSE){
 #' @param local_app specifies whether quality metrics are coming from local app
 #'
 #' @return A combined.cnv.output object
-new_cnv_output <- function(cnv_file_path, local_app=FALSE) {
+#'
+#' @importFrom dplyr tibble
+new_cnv_output <- function(cnv_file_path, local_app = FALSE) {
 
-  cnv_data = tibble(file = cnv_file_path) |>
+  cnv_data <- tibble(file = cnv_file_path) |>
     mutate(data = lapply(file, parse_vcf_to_df)) |>
     unnest(data) |>
     mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants.vcf", "")) |>
@@ -38,7 +40,10 @@ new_cnv_output <- function(cnv_file_path, local_app=FALSE) {
 #' @return A named list of combined.cnv.output objects
 #'
 #' @export
-read_cnv_data <- function(cnv_directory, local_app=FALSE){
+#'
+#' @importFrom purr map set_names
+#' @importFrom stringr set_remove
+read_cnv_data <- function(cnv_directory, local_app = FALSE) {
   cnv_files <- list.files(
     path = cnv_directory,
     pattern = "*cnv\\.vcf$|*CopyNumberVariants\\.vcf$",
@@ -46,7 +51,7 @@ read_cnv_data <- function(cnv_directory, local_app=FALSE){
     full.names = TRUE
   )
   cnv_data <- map(cnv_files, cnv, local_app)  |>
-    set_names(str_remove(basename(cnv_files), "\\.vcf$")) 
+    set_names(str_remove(basename(cnv_files), "\\.vcf$"))
   cnv_data
 }
 
@@ -56,9 +61,14 @@ read_cnv_data <- function(cnv_directory, local_app=FALSE){
 #' *tmb.json files
 #'
 #' @return A dataframe with the read CNV data
-#' 
+#'
 #' @export
-summarize_cnv_data <- function(cnv_directory){
+#'
+#' @importFrom tibble tibble
+#' @importFrom stringr str_replace
+#' @importFrom tidyr unnest
+#' @importFrom dplyr relocate mutate
+summarize_cnv_data <- function(cnv_directory) {
   cnv_files <- list.files(
     path = cnv_directory,
     pattern = "*cnv\\.vcf$|*CopyNumberVariants\\.vcf$",
@@ -66,12 +76,12 @@ summarize_cnv_data <- function(cnv_directory){
     full.names = TRUE
   )
 
-  cnv_data = tibble::tibble(file = cnv_files) |>
+  cnv_data <- tibble(file = cnv_files) |>
     mutate(data = lapply(file, parse_vcf_to_df)) |>
-    tidyr::unnest(data) |>
+    unnest(data) |>
     mutate(sample_id = str_replace(basename(file), "_CopyNumberVariants\\.vcf$", "")) |>
     select(-file) |>
-    dplyr::relocate(sample_id)
+    relocate(sample_id)
 
   cnv_data
 }

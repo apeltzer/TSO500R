@@ -230,7 +230,7 @@ get_run_qc_metrics.combined.quality.metrics.output <- function(qmo_obj) {
 #'
 #' @export
 #'
-#' @importFrom dplyr rename mutate
+#' @importFrom dplyr rename mutate across
 #' @importFrom tidyr pivot_longer pivot_wider
 get_analysis_status.combined.quality.metrics.output <- function(qmo_obj) {
   suppressWarnings(
