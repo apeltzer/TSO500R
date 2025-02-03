@@ -539,10 +539,10 @@ add_tmb_variant_data <- function(small_variant_df, tmb_variant_df) {
 add_amplification_data <- function(small_variant_df, amplification_df) {
   prepared_amplification_df <- amplification_df |>
     mutate(variant_type = if_else(fold_change < 1.0, "DEL", "DUP")) |>
-    select(-fold_change)
+    select(-.data$fold_change)
 
   joined_data <- small_variant_df |> 
-    rename(variant_type = consequence_s) |>
+    rename(variant_type = .data$consequence_s) |>
     bind_rows(prepared_amplification_df)
   return(joined_data)
 }

@@ -3,6 +3,7 @@
 #' @description Read in a *CopyNumberVariants.vcf file
 #'
 #' @param cnv_file_path a file path to a *CopyNumberVariants.vcf file
+#' @param local_app specifies whether the data is coming from local app
 #'
 #' @return A cnv.output object
 #' 
@@ -15,7 +16,7 @@ cnv <- function(cnv_file_path, local_app = FALSE) {
 #' Not to be called directly
 #'
 #' @param cnv_file_path a file path to a *CopyNumberVariants.vcf file
-#' @param local_app specifies whether quality metrics are coming from local app
+#' @param local_app specifies whether the data is coming from local app
 #'
 #' @return A combined.cnv.output object
 #'
@@ -35,7 +36,7 @@ new_cnv_output <- function(cnv_file_path, local_app = FALSE) {
 #' Read in a batch of *CopyNumberVariants.vcf files into a list of CNV objects
 #'
 #' @param cnv_directory a file path to a directory containing one of more *CopyNumberVariants.vcf files
-#' @param local_app specifies whether quality metrics are coming from local app
+#' @param local_app specifies whether the data is coming from local app
 #'
 #' @return A named list of combined.cnv.output objects
 #'
