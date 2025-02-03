@@ -10,7 +10,7 @@ new_cnv_output(cnv_file_path, local_app = FALSE)
 \arguments{
 \item{cnv_file_path}{a file path to a *CopyNumberVariants.vcf file}
 
-\item{local_app}{specifies whether quality metrics are coming from local app}
+\item{local_app}{specifies whether the data is coming from local app}
 }
 \value{
 A combined.cnv.output object

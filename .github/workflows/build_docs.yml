@@ -1,0 +1,52 @@
+name: "Build docs using pkgdown"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    # also run on 'closed' to clean up the github pages dir
+    types:
+        - opened
+        - reopened
+        - synchronize
+        - closed
+
+concurrency: preview-${{ github.ref }}
+
+jobs:
+  docs:
+    name: "Build Docs"
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
+          needs: website
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      - name: Deploy preview
+        if: github.event_name == 'pull_request'
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: docs
+
+      - name: Deploy docs
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs
+          branch: gh-pages
+          clean-exclude: pr-preview/
+          force: false

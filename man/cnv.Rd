@@ -8,6 +8,8 @@ cnv(cnv_file_path, local_app = FALSE)
 }
 \arguments{
 \item{cnv_file_path}{a file path to a *CopyNumberVariants.vcf file}
+
+\item{local_app}{specifies whether the data is coming from local app}
 }
 \value{
 A cnv.output object

@@ -70,17 +70,17 @@ plot_af_density <- function(small_variant_df){
 #' @param top_annotation the annotation object for the top, default: empty
 #' @param right_annotation the annotation object for the right, default: empty
 #' @param left_annotation the annotation object for the left, default: empty
-#' @param top Plot top {top} genes for given variant matrix (default: all)
+#' @param top Plot top x genes for given variant matrix (default: all)
 #'
-#' @return ggplot object
+#' @return ComplexHeatmap object
 #'
 #' @export
-plot_onco_print <- function(variant_matrix, column_title, alter_list, variant_colors, heatmap_legend, bottom_annotation=anno_empty(border = FALSE), top_annotation=anno_empty(border = FALSE), right_annotation=anno_empty(border = FALSE), left_annotation=anno_empty(border = FALSE), top=nrow(variant_matrix)){
-  # get top {top} genes
+plot_onco_print <- function(variant_matrix, column_title, alter_list, variant_colors, heatmap_legend, bottom_annotation=ComplexHeatmap::anno_empty(border = FALSE), top_annotation=anno_empty(border = FALSE), right_annotation=anno_empty(border = FALSE), left_annotation=anno_empty(border = FALSE), top=nrow(variant_matrix)){
+  # get top x genes
   top_index = order(apply(variant_matrix, 1, function(x) sum(x != "")), decreasing = TRUE)[1:top]
   variant_matrix_top <- variant_matrix[top_index, ]
 
-  onco_print <- oncoPrint(variant_matrix_top,
+  onco_print <- ComplexHeatmap::oncoPrint(variant_matrix_top,
           alter_fun = alter_list, col = variant_colors, 
           column_title = column_title,
           show_column_names = TRUE,
@@ -89,7 +89,7 @@ plot_onco_print <- function(variant_matrix, column_title, alter_list, variant_co
           remove_empty_rows = TRUE,
           heatmap_legend_param = heatmap_legend_param,
 
-          top_annotation = HeatmapAnnotation(ta = top_annotation, 
+          top_annotation = ComplexHeatmap::HeatmapAnnotation(ta = top_annotation, 
             cbar = anno_oncoprint_barplot(height = unit(4, "cm")), show_annotation_name = FALSE),
           bottom_annotation = HeatmapAnnotation(ba = bottom_annotation, show_annotation_name = FALSE),
           right_annotation = rowAnnotation(ra = right_annotation, show_annotation_name = FALSE),
@@ -103,17 +103,19 @@ plot_onco_print <- function(variant_matrix, column_title, alter_list, variant_co
 #' @param ggplot_object ggplot2 plot object
 #'
 #' @return ggplot object
-#' 
+#'
 #' @export
-add_common_theme_elements <- function(ggplot_object){
+#'
+#' @importFrom ggplot2 theme element_text element_blank element_rect
+add_common_theme_elements <- function(ggplot_object) {
   common_theme_elements <- theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=0, size = 5),
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0, size = 5),
     axis.text.y = element_text(size = 5),
-    axis.text = element_text(size=5),
+    axis.text = element_text(size = 5),
     legend.title = element_blank(),
     legend.position = "none",
     panel.background = element_rect(fill = 'white'),
-    panel.border = element_rect(fill= NA, color = "black")
+    panel.border = element_rect(fill = NA, color = "black")
   )
   g2 <- ggplot_object + common_theme_elements
   return(g2)
