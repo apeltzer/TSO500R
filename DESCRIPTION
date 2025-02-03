@@ -16,6 +16,7 @@ RoxygenNote: 7.2.3
 Imports:
   ComplexHeatmap,
   dplyr,
+  ggplot2,
   gt,
   janitor,
   jsonlite,

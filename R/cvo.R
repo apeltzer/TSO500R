@@ -81,6 +81,8 @@ validate_tso500 <- function() {}
 #' @return A named list of combined.variant.output objects
 #'
 #' @export
+#'
+#' @importFrom purrr map
 read_cvo_data <- function(cvo_directory, local_app = FALSE, ctdna = FALSE) {
   cvo_files <- list.files(
     path = cvo_directory,
@@ -88,8 +90,8 @@ read_cvo_data <- function(cvo_directory, local_app = FALSE, ctdna = FALSE) {
     recursive = TRUE,
     full.names = TRUE
   )
-  cvo_data <- purrr::map(cvo_files, cvo, local_app, ctdna)
-  names(cvo_data) <- purrr::map(cvo_data, ~ ifelse(ctdna, .x$analysis_details$dna_sample_id,
+  cvo_data <- map(cvo_files, cvo, local_app, ctdna)
+  names(cvo_data) <- map(cvo_data, ~ ifelse(ctdna, .x$analysis_details$dna_sample_id,
                                                    .x$analysis_details$pair_id))
   cvo_data
 }
@@ -230,7 +232,10 @@ get_splice_variants.combined.variant.output <- function(cvo_obj) {
 #' @method get_fusions combined.variant.output
 #'
 #' @export
-get_fusions.combined.variant.output <- function(cvo_obj){
+#'
+#' @importFrom dplyr mutate select
+#' @importFrom tidyr everything
+get_fusions.combined.variant.output <- function(cvo_obj) {
   suppressWarnings(
     if (all(is.na(cvo_obj$fusions)) & all(is.na(cvo_obj$dna_fusions))) {
       fusion_df <- data.frame()
@@ -242,10 +247,10 @@ get_fusions.combined.variant.output <- function(cvo_obj){
       }
 
       fusion_df <- fusion_df |>
-        dplyr::mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
+        mutate(sample_id = ifelse(is.null(cvo_obj$analysis_details$pair_id),
                                          cvo_obj$analysis_details$dna_sample_id,
                                          cvo_obj$analysis_details$pair_id)) |>
-        dplyr::select(sample_id, tidyr::everything())
+        select(sample_id, everything())
     }
   )
   return(fusion_df)
@@ -267,7 +272,8 @@ parse_cvo_record <- function(record_string) {
     unlist() |>
     str_remove("\\t$") |>
     str_split("\\t") |>
-    rapply(., function(x) ifelse(x=="NA",NA,x), how = "replace") # replace all string NAs with NA to avoid warnings from as.numeric
+    # replace all string NAs with NA to avoid warnings from as.numeric
+    rapply(., function(x) ifelse(x=="NA",NA,x), how = "replace")
 
   if(str_detect(record_string, "\\[TMB\\]|\\[MSI\\]")){
     record <- map(intermediate, ~ as.numeric(.x[2]))
@@ -333,8 +339,10 @@ handle_empty_cvo_table_values <- function(intermediate_tbl) {
 #' @param string string with file content
 #'
 #' @return char vector
+#'
+#' @importFrom stringr str_remove
 trim_cvo_header_and_footer <- function(string) {
   string |>
-    stringr::str_remove(".+\\t\\t\\n") |>
-    stringr::str_remove("[\\n\\t]+$")
+    str_remove(".+\\t\\t\\n") |>
+    str_remove("[\\n\\t]+$")
 }

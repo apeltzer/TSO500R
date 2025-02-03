@@ -41,8 +41,8 @@ new_cnv_output <- function(cnv_file_path, local_app = FALSE) {
 #'
 #' @export
 #'
-#' @importFrom purr map set_names
-#' @importFrom stringr set_remove
+#' @importFrom purrr map set_names
+#' @importFrom stringr str_remove
 read_cnv_data <- function(cnv_directory, local_app = FALSE) {
   cnv_files <- list.files(
     path = cnv_directory,
